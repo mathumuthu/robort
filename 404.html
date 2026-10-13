@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 - Page Not Found</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+:root{
+    --dark:#0c0925;
+    --primary:rgba(124,58,237,.5);
+    --secondary:rgba(124,58,237,.5);
+    --light:rgba(124,58,237,.5);
+    --white:#ffffff;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    background:linear-gradient(135deg,#04120d,#0b5d46,#06271e);
+    position:relative;
+}
+
+/* Animated Background */
+
+body::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+    radial-gradient(circle at 20% 20%,rgba(7, 3, 22, 0.15),transparent 20%),
+    radial-gradient(circle at 80% 40%,rgba(124,58,237,.5),transparent 25%),
+    radial-gradient(circle at 50% 80%,rgba(120,140,255,.14),transparent 25%);
+    animation:bgMove 12s linear infinite alternate;
+}
+
+@keyframes bgMove{
+    from{transform:scale(1);}
+    to{transform:scale(1.15);}
+}
+
+/* Floating Circles */
+
+.circle{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,.08);
+    animation:float 8s infinite ease-in-out;
+}
+
+.circle:nth-child(1){
+    width:120px;
+    height:120px;
+    left:5%;
+    top:10%;
+}
+
+.circle:nth-child(2){
+    width:70px;
+    height:70px;
+    right:10%;
+    bottom:15%;
+    animation-delay:2s;
+}
+
+.circle:nth-child(3){
+    width:150px;
+    height:150px;
+    right:20%;
+    top:12%;
+    animation-delay:4s;
+}
+
+@keyframes float{
+    0%,100%{
+        transform:translateY(0px);
+    }
+    50%{
+        transform:translateY(-25px);
+    }
+}
+
+/* Card */
+
+.card{
+    position:relative;
+    z-index:10;
+    width:min(92%,700px);
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:25px;
+    padding:50px 35px;
+    text-align:center;
+    color:white;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    animation:fade .8s ease;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(40px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.error{
+    font-size:120px;
+    font-weight:800;
+    color:#6dffb2;
+    line-height:1;
+    text-shadow:0 0 20px rgba(53, 9, 195, 0.8);
+    animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+    from{
+        text-shadow:0 0 10px #01031b;
+    }
+    to{
+        text-shadow:0 0 35px #140c37;
+    }
+}
+
+.icon{
+    font-size:70px;
+    margin:20px 0;
+}
+
+h1{
+    font-size:34px;
+    margin-bottom:15px;
+}
+
+p{
+    color:#d9fce8;
+    line-height:1.7;
+    margin-bottom:35px;
+}
+
+/* Buttons */
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    text-decoration:none;
+    padding:14px 28px;
+    border-radius:50px;
+    color:white;
+    font-weight:600;
+    background:linear-gradient(135deg,#0b5d46,#18062a);
+    transition:.35s;
+    border:none;
+    cursor:pointer;
+}
+
+.btn:hover{
+    transform:translateY(-5px);
+    box-shadow:0 12px 25px rgba(43, 7, 87, 0.35);
+}
+
+.btn-outline{
+    background:transparent;
+    border:2px solid #220441;
+}
+
+.btn-outline:hover{
+    background:#080220;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+.card{
+padding:40px 25px;
+}
+
+.error{
+font-size:90px;
+}
+
+h1{
+font-size:28px;
+}
+
+.icon{
+font-size:55px;
+}
+
+.buttons{
+flex-direction:column;
+}
+
+.btn{
+width:100%;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="circle"></div>
+<div class="circle"></div>
+<div class="circle"></div>
+
+<div class="card">
+
+<div class="error">404</div>
+
+<div class="icon">🤖</div>
+
+<h1>Oops! Page Not Found</h1>
+
+<p>
+The page you are looking for might have been removed,
+renamed, or is temporarily unavailable.
+</p>
+
+<div class="buttons">
+
+<button class="btn btn-outline" onclick="history.back()">
+⬅ Previous
+</button>
+
+<!-- <button class="btn btn-outline" onclick="history.forward()">
+➡ Next
+</button> -->
+
+<a href="index.html" class="btn">
+🏠 Home
+</a>
+
+</div>
+
+</div>
+
+</body>
+</html>

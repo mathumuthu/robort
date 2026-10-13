@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17132b">
+  <title>STACKLY AI | User Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{--navy:#17132b;--navy-soft:#211b3a;--purple:#7554e8;--purple-dark:#5b3ccc;--lavender:#eeeaff;--bg:#f7f6fb;--white:#fff;--text:#211d35;--muted:#827e96;--border:#e9e6f1;--green:#17966b;--red:#d64961;--amber:#c88928;--sidebar:258px;--shadow:0 12px 35px rgba(35,26,76,.07)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(117,84,232,.3);outline-offset:2px}
+    .sidebar{position:fixed;z-index:30;inset:0 auto 0 0;width:var(--sidebar);padding:23px 15px 18px;background:var(--navy);color:#fff;display:flex;flex-direction:column;transition:transform .28s ease}
+    .brand{display:flex;align-items:center;gap:11px;padding:3px 11px 24px;color:#fff;text-decoration:none}
+    .brand-mark{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;background:linear-gradient(140deg,#a895ff,#6d4ddd);font-size:20px;font-weight:800;box-shadow:0 7px 20px #7050e45c}
+    .brand strong{font-size:19px;letter-spacing:.04em}.brand strong span{color:#a895ff}
+    .workspace-label{padding:11px 12px 7px;color:#918ba8;font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+    .nav-list{list-style:none;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#514866 transparent}
+    .nav-list li{margin:2px 0}
+    .nav-btn,.logout-btn{width:100%;display:flex;align-items:center;gap:11px;padding:10px 12px;color:#c2bed0;border:0;border-radius:9px;background:transparent;text-align:left;font-size:12px;font-weight:500;transition:background .18s,color .18s}
+    .nav-btn:hover,.nav-btn.active{color:#fff;background:#32275a}
+    .nav-btn.active{box-shadow:inset 3px 0 #a895ff}
+    .nav-icon{width:19px;text-align:center;font-size:15px;color:#a8a2bb}
+    .nav-btn.active .nav-icon{color:#c4b6ff}
+    .sidebar-bottom{margin-top:auto;padding-top:12px;border-top:1px solid #342e48}
+    .logout-btn{color:#f1a8b2}.logout-btn:hover{background:#442737}
+    .main{min-height:100vh;margin-left:var(--sidebar)}
+    .topbar{position:sticky;top:0;z-index:20;min-height:70px;padding:0 30px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:18px;backdrop-filter:blur(12px)}
+    .mobile-menu{display:none;width:40px;height:40px;border:0;border-radius:10px;background:var(--lavender);color:var(--purple-dark);font-size:20px}
+    .global-search{position:relative;display:flex;align-items:center;gap:9px;width:min(360px,45vw);padding:10px 13px;border:1px solid transparent;border-radius:10px;background:#f5f3fa;color:var(--muted)}
+    .global-search:focus-within{border-color:#c8baff;background:#fff}
+    .global-search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:12px}
+    .search-hint{font-size:10px;white-space:nowrap}
+    .topbar-spacer{flex:1}
+    .top-icon{position:relative;width:36px;height:36px;border:0;border-radius:10px;background:#f5f3fa;color:#625c75;font-size:16px}
+    .notification-dot{position:absolute;right:7px;top:6px;width:7px;height:7px;border:1px solid #fff;border-radius:50%;background:#ed6980}
+    .user-chip{display:flex;align-items:center;gap:10px;max-width:240px}
+    .avatar{width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#c6baff,#7554e8);color:#fff;font-size:14px;font-weight:700;overflow:hidden}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .user-meta{min-width:0}.user-meta strong,.user-meta small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .user-meta strong{font-size:11px}.user-meta small{margin-top:3px;color:var(--muted);font-size:10px}
+    .content{max-width:1560px;margin:auto;padding:28px 30px 42px}
+    .page{display:none;animation:pageIn .25s ease}.page.active{display:block}
+    @keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .page-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+    .page-head h1{font-size:24px;letter-spacing:-.04em}.page-head p{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.6}
+    .eyebrow{margin-bottom:7px;color:var(--purple);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:37px;padding:9px 14px;border:1px solid transparent;border-radius:9px;font-size:11px;font-weight:650;transition:transform .18s,box-shadow .18s,background .18s}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{color:#fff;background:linear-gradient(135deg,#8364f2,#6245d0);box-shadow:0 6px 15px #7554e82e}
+    .btn-primary:hover{box-shadow:0 9px 20px #7554e848}
+    .btn-secondary{color:var(--text);border-color:var(--border);background:#fff}
+    .btn-quiet{color:var(--purple-dark);background:var(--lavender)}
+    .btn-danger{color:var(--red);border-color:#f5dce2;background:#fff}
+    .card{min-width:0;padding:19px;border:1px solid var(--border);border-radius:15px;background:var(--white);box-shadow:var(--shadow)}
+    .welcome-banner{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:155px;margin-bottom:19px;padding:25px 27px;border:0;color:#fff;background:linear-gradient(115deg,#211845,#52369f 63%,#7960da)}
+    .welcome-banner:after{content:"✦";position:absolute;right:23%;top:-50px;color:#ffffff15;font-size:220px;line-height:1}
+    .welcome-banner .eyebrow{color:#c7bbff}.welcome-banner h1{font-size:25px;letter-spacing:-.04em}.welcome-banner p{max-width:470px;margin-top:8px;color:#ded8f6;font-size:11px;line-height:1.7}
+    .banner-actions{position:relative;z-index:1;display:flex;gap:9px;flex-wrap:wrap}.welcome-banner .btn-secondary{border-color:#ffffff4a;color:#fff;background:#ffffff14}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+    .metric-card{padding:17px}.metric-top{display:flex;align-items:center;justify-content:space-between}
+    .metric-label{color:var(--muted);font-size:10px;font-weight:550}.metric-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--lavender);color:var(--purple-dark);font-size:15px}
+    .metric-value{margin:13px 0 5px;font-size:25px;font-weight:750;letter-spacing:-.04em}.metric-note{color:var(--muted);font-size:9px}.metric-trend{color:var(--green);font-weight:650}
+    .progress-track{height:6px;margin-top:12px;overflow:hidden;border-radius:10px;background:#efedf5}.progress-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#8f77f3,#5d43ce)}
+    .dashboard-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(250px,1fr);gap:16px;margin-bottom:17px}
+    .dashboard-grid.equal{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+    .card-heading h2,.card-heading h3{font-size:13px;letter-spacing:-.02em}.card-heading p{margin-top:4px;color:var(--muted);font-size:9px}
+    .card-heading select{max-width:120px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--muted);font-size:9px}
+    .chart-box{position:relative;height:235px}.chart-box.short{height:205px}
+    .quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+    .quick-action{min-height:105px;padding:13px 8px;border:1px solid var(--border);border-radius:11px;background:#fff;text-align:left;transition:.2s}
+    .quick-action:hover{transform:translateY(-3px);border-color:#c8baff;box-shadow:0 8px 20px #31236c12}
+    .quick-action .metric-icon{margin-bottom:10px}.quick-action strong{display:block;font-size:10px}.quick-action small{display:block;margin-top:4px;color:var(--muted);font-size:8px}
+    .activity-list,.tool-list,.notification-list{display:grid;gap:0}
+    .activity-item,.tool-row,.notification-item{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px solid #f0eef5}
+    .activity-item:first-child,.tool-row:first-child,.notification-item:first-child{padding-top:0;border-top:0}
+    .activity-symbol{display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:10px;background:var(--lavender);color:var(--purple);font-size:14px}
+    .activity-copy,.tool-copy,.notification-copy{min-width:0;flex:1}.activity-copy strong,.tool-copy strong,.notification-copy strong{display:block;font-size:10px}
+    .activity-copy small,.tool-copy small,.notification-copy small{display:block;margin-top:4px;color:var(--muted);font-size:9px;line-height:1.5}
+    .activity-credits{color:var(--muted);font-size:9px;white-space:nowrap}
+    .tool-row{cursor:pointer}.tool-row:hover .activity-symbol{background:#e4deff}
+    .project-grid,.tool-grid,.model-grid,.feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .project-card{padding:16px}.project-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.project-card h3{font-size:12px}
+    .project-card p{margin-top:7px;color:var(--muted);font-size:9px;line-height:1.6}.project-meta{display:flex;justify-content:space-between;margin-top:15px;color:var(--muted);font-size:9px}
+    .pill{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:20px;background:#efedf6;color:#706b81;font-size:8px;font-weight:650;white-space:nowrap}
+    .pill.success{color:#117c59;background:#e7f7f0}.pill.warning{color:#98671b;background:#fff4dd}.pill.purple{color:#644bc2;background:#efebff}
+    .tool-card{display:flex;flex-direction:column;gap:12px}.tool-card-head{display:flex;align-items:center;gap:11px}.tool-card h3{font-size:12px}.tool-card p{color:var(--muted);font-size:9px;line-height:1.65}.tool-card .btn{margin-top:auto;align-self:flex-start}
+    .tool-card .metric-icon{width:40px;height:40px}.field{display:grid;gap:6px;margin-bottom:13px}.field label{font-size:10px;font-weight:650}.field input,.field textarea,.field select,.search-input{width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text);font-size:11px}
+    .field textarea{min-height:112px;resize:vertical;line-height:1.6}.field input::placeholder,.field textarea::placeholder{color:#aaa6b7}
+    .field-hint{color:var(--muted);font-size:9px;line-height:1.5}.form-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+    .result-box{min-height:120px;padding:14px;border:1px dashed #d8d2ea;border-radius:11px;background:#faf9fe}
+    .result-box h3{margin-bottom:8px;font-size:11px}.result-box p{color:#686379;font-size:10px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+    .result-placeholder{color:var(--muted)!important}
+    .chat-layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:15px}
+    .chat-panel{display:flex;flex-direction:column;min-height:470px;padding:0;overflow:hidden}
+    .chat-header{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--border)}
+    .online-dot{width:8px;height:8px;border-radius:50%;background:#3abe88;box-shadow:0 0 0 4px #3abe881a}
+    .chat-header strong{font-size:11px}.chat-header small{display:block;margin-top:3px;color:var(--muted);font-size:9px}
+    .chat-messages{display:flex;flex:1;flex-direction:column;gap:11px;padding:19px;overflow:auto}
+    .chat-message{max-width:82%;padding:11px 13px;border-radius:12px;background:#f3f1fa;color:#514c63;font-size:10px;line-height:1.7}
+    .chat-message.user{align-self:flex-end;color:#fff;background:var(--purple)}
+    .chat-compose{display:flex;align-items:flex-end;gap:9px;padding:13px;border-top:1px solid var(--border)}
+    .chat-compose textarea{flex:1;min-height:42px;max-height:120px;padding:11px;border:1px solid var(--border);border-radius:9px;resize:vertical;font-size:10px}
+    .chat-note{padding:0 14px 12px;color:var(--muted);font-size:8px;text-align:center}
+    .side-tips{display:grid;align-content:start;gap:12px}.tip{padding:14px;border-radius:11px;background:#f6f4fd}.tip strong{font-size:10px}.tip p{margin-top:6px;color:var(--muted);font-size:9px;line-height:1.65}
+    .data-table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th{padding:10px 11px;background:#faf9fc;color:var(--muted);font-size:9px;font-weight:650;text-align:left}td{padding:12px 11px;border-top:1px solid #f0eef5;font-size:10px}
+    .empty-state{padding:30px 15px;color:var(--muted);font-size:11px;text-align:center}
+    .settings-list{display:grid;gap:0}.setting-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 0;border-top:1px solid #f0eef5}.setting-row:first-child{border-top:0;padding-top:0}.setting-row strong{font-size:10px}.setting-row small{display:block;margin-top:4px;color:var(--muted);font-size:9px}
+    .switch{appearance:none;position:relative;width:38px;height:22px;flex:none;border-radius:15px;background:#d9d6e2;transition:.2s}.switch:checked{background:var(--purple)}.switch:before{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}.switch:checked:before{transform:translateX(16px)}
+    .profile-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:15px}.profile-summary{text-align:center}.profile-summary .avatar{width:76px;height:76px;margin:4px auto 12px;font-size:24px}.profile-summary h2{font-size:14px}.profile-summary p{margin-top:5px;color:var(--muted);font-size:10px}.profile-plan{margin-top:17px;padding:13px;border-radius:10px;background:#f5f2ff;text-align:left}.profile-plan strong{font-size:10px}.profile-plan p{line-height:1.7}
+    .profile-picture-controls{display:flex;justify-content:center;gap:7px;margin-top:10px}.profile-picture-controls input{max-width:175px;font-size:9px}
+    .notice{margin-bottom:14px;padding:12px 14px;border:1px solid #e5ddff;border-radius:10px;background:#f7f4ff;color:#615387;font-size:10px;line-height:1.6}
+    .toast-region{position:fixed;z-index:80;right:20px;bottom:20px;display:grid;gap:8px}.toast{max-width:min(360px,calc(100vw - 40px));padding:12px 15px;border-radius:10px;background:#211b3a;color:#fff;box-shadow:0 10px 28px #211b3a33;font-size:10px;animation:pageIn .2s ease}.toast.error{background:#9d3349}
+    .overlay{display:none}
+    @media(max-width:1120px){:root{--sidebar:235px}.content{padding:23px}.topbar{padding:0 23px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.project-grid,.tool-grid,.model-grid,.feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:800px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.mobile-menu{display:block;flex:none}.topbar{min-height:64px;padding:0 15px;gap:10px}.global-search{width:auto;flex:1;max-width:360px}.search-hint{display:none}.user-meta{display:none}.top-icon{flex:none}.content{padding:19px 16px 30px}.overlay.show{position:fixed;z-index:25;inset:0;display:block;background:#130f2580}.dashboard-grid,.dashboard-grid.equal{grid-template-columns:1fr}.chat-layout{grid-template-columns:1fr}.side-tips{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-layout{grid-template-columns:1fr}.profile-summary{max-width:none}.welcome-banner{align-items:flex-start;flex-direction:column}.banner-actions{width:100%}}
+    @media(max-width:560px){.page-head{align-items:flex-start;flex-direction:column}.page-head h1{font-size:21px}.page-head .btn{align-self:flex-start}.welcome-banner{padding:21px}.welcome-banner h1{font-size:21px}.metrics{gap:10px}.metric-card{padding:14px}.metric-value{font-size:22px}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.project-grid,.tool-grid,.model-grid,.feature-grid{grid-template-columns:1fr}.side-tips{grid-template-columns:1fr}.chart-box{height:205px}.card{padding:15px}.chat-panel{min-height:430px}.global-search{padding:9px}.user-chip{gap:0}.topbar{gap:7px}.content{padding-right:12px;padding-left:12px}.form-actions .btn{flex:1}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  
+  
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.brand-box {
+    width: 48px;
+    height: 48px;
+    background: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.brand-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.brand strong {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.brand strong span {
+    color: #ff007f;
+}
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+
+
+
+
+
+
+    <a class="brand" href="index.html" aria-label="STACKLY AI overview">
+    <span class="brand-box">
+        <img src="Intertwined Indigo Ribbon Emblem.png" alt="Stackly Logo">
+    </span>
+
+    <strong>STACKLY<span> </span></strong>
+</a>
+
+   <div class="workspace-label">Workspace</div>
+    <ul class="nav-list">
+      <li><button class="nav-btn active" data-page="overview"><span class="nav-icon">◫</span>Overview</button></li>
+      <li><button class="nav-btn" data-page="chat"><span class="nav-icon">✧</span>AI Chat Assistant</button></li>
+      <li><button class="nav-btn" data-page="projects"><span class="nav-icon">▧</span>AI Projects</button></li>
+      <!-- <li><button class="nav-btn" data-page="tools"><span class="nav-icon">⌘</span>AI Tools</button></li> -->
+      <li><button class="nav-btn" data-page="models"><span class="nav-icon">◉</span>AI Models</button></li>
+      <!-- <li><button class="nav-btn" data-page="image"><span class="nav-icon">▧</span>AI Image Generator</button></li> -->
+      <li><button class="nav-btn" data-page="documents"><span class="nav-icon">▤</span>AI Document Assistant</button></li>
+      <li><button class="nav-btn" data-page="usage"><span class="nav-icon">◷</span>AI Usage &amp; Credits</button></li>
+      <!-- <li><button class="nav-btn" data-page="history"><span class="nav-icon">↺</span>Chat History</button></li> -->
+      <!-- <li><button class="nav-btn" data-page="saved"><span class="nav-icon">☆</span>Saved Items</button></li> -->
+      <li><button class="nav-btn" data-page="notifications"><span class="nav-icon">♧</span>Notifications</button></li>
+    </ul>
+    <!-- <div class="workspace-label">Account</div>
+    <ul class="nav-list">
+      <li><button class="nav-btn" data-page="profile"><span class="nav-icon">♙</span>My Profile</button></li>
+      <li><button class="nav-btn" data-page="settings"><span class="nav-icon">⚙</span>Settings</button></li>
+      <li><button class="nav-btn" data-page="help"><span class="nav-icon">?</span>Help &amp; Support</button></li>
+    </ul> -->
+    <div class="sidebar-bottom"><button class="logout-btn" id="logoutBtn"><span class="nav-icon">↪</span>Logout</button></div>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+  <main class="main">
+    <header class="topbar">
+      <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+      <label class="global-search"><span aria-hidden="true">⌕</span><input id="globalSearch" type="search" placeholder="Search your workspace..." aria-label="Search your workspace"><span class="search-hint">Search</span></label>
+      <div class="topbar-spacer"></div>
+      <button class="top-icon" type="button" data-navigate="notifications" aria-label="View notifications">♧<span class="notification-dot"></span></button>
+      <div class="user-chip"><div class="avatar" id="userAvatar">U</div><div class="user-meta"><strong id="userName">User</strong><small id="userEmail">user@stackly.ai</small></div></div>
+    </header>
+    <div class="content">
+      <section class="page active" id="overview" aria-labelledby="overviewTitle">
+        <div class="welcome-banner card">
+          <div><div class="eyebrow">Your AI workspace</div><h1 id="overviewTitle">Welcome back, <span data-user-name>there</span></h1><p>Your projects, models, and AI activity—all in one place. Your workspace analytics are demo data; generated outputs are not connected to a live AI service.</p></div>
+          <div class="banner-actions"><button class="btn btn-primary" data-navigate="chat">✧ Start a conversation</button><button class="btn btn-secondary" data-navigate="projects">View projects</button></div>
+        </div>
+        <div class="metrics">
+          <article class="card metric-card"><div class="metric-top"><span class="metric-label">Total AI Projects</span><span class="metric-icon">▧</span></div><div class="metric-value">18</div><div class="metric-note"><span class="metric-trend">+3</span> created this month</div></article>
+          <article class="card metric-card"><div class="metric-top"><span class="metric-label">AI Requests This Month</span><span class="metric-icon">✧</span></div><div class="metric-value">2,486</div><div class="metric-note"><span class="metric-trend">+12.8%</span> vs. last month</div></article>
+          <article class="card metric-card"><div class="metric-top"><span class="metric-label">AI Credits Used</span><span class="metric-icon">◈</span></div><div class="metric-value">7,850</div><div class="metric-note">of 10,000 monthly credits</div><div class="progress-track"><span style="width:78.5%"></span></div></article>
+          <article class="card metric-card"><div class="metric-top"><span class="metric-label">Active AI Models</span><span class="metric-icon">◉</span></div><div class="metric-value">4</div><div class="metric-note"><span class="metric-trend">All systems normal</span></div></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="card"><div class="card-heading"><div><h2>AI Usage Analytics</h2><p>Requests and credits over the last 7 months</p></div><span class="pill purple">Monthly</span></div><div class="chart-box"><canvas id="usageChart" aria-label="Monthly AI usage analytics"></canvas></div></article>
+          <article class="card"><div class="card-heading"><div><h2>AI Service Usage</h2><p>Requests by service category</p></div></div><div class="chart-box"><canvas id="serviceChart" aria-label="AI service usage doughnut chart"></canvas></div></article>
+        </div>
+        <div class="dashboard-grid equal">
+          <article class="card"><div class="card-heading"><div><h2>Monthly Activity</h2><p>Your workspace activity this week</p></div><span class="pill">This week</span></div><div class="chart-box short"><canvas id="activityChart" aria-label="Monthly activity chart"></canvas></div></article>
+          <article class="card"><div class="card-heading"><div><h2>Quick Actions</h2><p>Jump back into your workflow</p></div></div><div class="quick-grid">
+            <button class="quick-action" data-navigate="chat"><span class="metric-icon">✧</span><strong>Chat with AI</strong><small>Ask a question</small></button>
+            <button class="quick-action" data-navigate="image"><span class="metric-icon">▧</span><strong>Create image</strong><small>Explore the prompt UI</small></button>
+            <button class="quick-action" data-navigate="documents"><span class="metric-icon">▤</span><strong>Summarize text</strong><small>Review a document</small></button>
+            <button class="quick-action" data-navigate="projects"><span class="metric-icon">＋</span><strong>New project</strong><small>Organize your work</small></button>
+          </div></article>
+        </div>
+        <div class="dashboard-grid equal">
+          <article class="card"><div class="card-heading"><div><h2>Recent AI Activities</h2><p>Latest actions across your workspace</p></div><button class="btn btn-quiet" data-navigate="history">View history</button></div><div class="activity-list" id="recentActivity"></div></article>
+          <article class="card"><div class="card-heading"><div><h2>Recently Used AI Tools</h2><p>Pick up where you left off</p></div><button class="btn btn-quiet" data-navigate="tools">All tools</button></div><div class="tool-list">
+            <button class="tool-row" data-navigate="chat"><span class="activity-symbol">✧</span><span class="tool-copy"><strong>AI Chat Assistant</strong><small>Last used today · Chat</small></span><span>›</span></button>
+            <button class="tool-row" data-navigate="documents"><span class="activity-symbol">▤</span><span class="tool-copy"><strong>Document Summarizer</strong><small>Last used yesterday · Documents</small></span><span>›</span></button>
+            <button class="tool-row" data-navigate="image"><span class="activity-symbol">▧</span><span class="tool-copy"><strong>Image Studio</strong><small>Last used Oct 10 · Creative</small></span><span>›</span></button>
+          </div></article>
+        </div>
+        <article class="card"><div class="card-heading"><div><h2>Project Progress</h2><p>Active work at a glance</p></div><button class="btn btn-quiet" data-navigate="projects">Manage projects</button></div><div class="project-grid">
+          <div class="project-card"><div class="project-top"><h3>Customer Insights</h3><span class="pill success">On track</span></div><p>Analyze support conversations and uncover recurring themes.</p><div class="progress-track"><span style="width:72%"></span></div><div class="project-meta"><span>72% complete</span><span>Due Oct 24</span></div></div>
+          <div class="project-card"><div class="project-top"><h3>Knowledge Base Refresh</h3><span class="pill warning">In review</span></div><p>Organize and summarize internal product documentation.</p><div class="progress-track"><span style="width:46%"></span></div><div class="project-meta"><span>46% complete</span><span>Due Nov 02</span></div></div>
+          <div class="project-card"><div class="project-top"><h3>Forecast Prototype</h3><span class="pill purple">In progress</span></div><p>Prototype a demand forecasting workflow with sample data.</p><div class="progress-track"><span style="width:28%"></span></div><div class="project-meta"><span>28% complete</span><span>Due Nov 12</span></div></div>
+        </div></article>
+        <article class="card" style="margin-top:16px"><div class="card-heading"><div><h2>Notifications &amp; Announcements</h2><p>Updates from your AI workspace</p></div><button class="btn btn-quiet" data-navigate="notifications">See all</button></div><div class="notification-list">
+          <div class="notification-item"><span class="activity-symbol">✦</span><span class="notification-copy"><strong>Workspace insights are ready</strong><small>Your monthly usage summary has been updated. Demo analytics are illustrative.</small></span><span class="pill">Today</span></div>
+          <div class="notification-item"><span class="activity-symbol">◉</span><span class="notification-copy"><strong>Model status: all systems normal</strong><small>All four demo model endpoints are shown as operational.</small></span><span class="pill">Yesterday</span></div>
+        </div></article>
+      </section>
+
+      <section class="page" id="chat" aria-labelledby="chatTitle"><div class="page-head"><div><div class="eyebrow">Workspace assistant</div><h1 id="chatTitle">AI Chat Assistant</h1><p>Draft ideas and ask questions in a local demo interface.</p></div><button class="btn btn-secondary" id="clearChat">Clear conversation</button></div><div class="notice">Demo mode: no AI service is connected. Replies are local placeholder responses and are not generated by a model.</div>
+        <div class="chat-layout"><div class="card chat-panel"><div class="chat-header"><span class="online-dot"></span><div><strong>STACKLY Assistant</strong><small>Local demo · No live AI connection</small></div></div><div class="chat-messages" id="chatMessages" aria-live="polite"><div class="chat-message">Hi! I’m the STACKLY demo assistant. I can help you explore this dashboard, but live AI responses are not connected. Try asking for a writing outline or project checklist.</div></div><form class="chat-compose" id="chatForm"><textarea id="chatInput" aria-label="Your message" placeholder="Message the demo assistant..." required maxlength="1200"></textarea><button class="btn btn-primary" type="submit">Send ↗</button></form><div class="chat-note">Demo UI only · Avoid entering sensitive information</div></div>
+          <aside class="side-tips"><div class="tip"><strong>Try a prompt</strong><p>“Give me a checklist for preparing a product launch.”</p></div><div class="tip"><strong>Demo privacy note</strong><p>Messages are only kept in this page session and are not sent to an AI provider.</p></div></aside></div>
+      </section>
+
+      <section class="page" id="projects" aria-labelledby="projectsTitle"><div class="page-head"><div><div class="eyebrow">Organize your work</div><h1 id="projectsTitle">AI Projects</h1><p>Track sample AI workflows and their progress.</p></div><button class="btn btn-primary" id="newProjectBtn">＋ New project</button></div><div class="project-grid" id="projectsGrid"></div></section>
+
+      <section class="page" id="tools" aria-labelledby="toolsTitle"><div class="page-head"><div><div class="eyebrow">Your toolkit</div><h1 id="toolsTitle">AI Tools</h1><p>Focused interfaces for common AI-assisted tasks. Tools run locally in demo mode.</p></div></div><div class="notice">These tool panels provide local UI demonstrations only. They do not call an AI model or external generation API.</div><div class="tool-grid">
+        <article class="card tool-card"><div class="tool-card-head"><span class="metric-icon">✎</span><h3>AI Text Generator</h3></div><p>Shape a writing brief and preview a local placeholder response.</p><button class="btn btn-quiet" data-navigate="text">Open text generator</button></article>
+        <article class="card tool-card"><div class="tool-card-head"><span class="metric-icon">⌘</span><h3>AI Code Assistant</h3></div><p>Draft a coding request and receive a clearly labeled local demo result.</p><button class="btn btn-quiet" data-navigate="code">Open code assistant</button></article>
+        <article class="card tool-card"><div class="tool-card-head"><span class="metric-icon">▤</span><h3>Document Summarizer</h3></div><p>Extract a short preview from text entered in the browser.</p><button class="btn btn-quiet" data-navigate="documents">Summarize a document</button></article>
+        <article class="card tool-card"><div class="tool-card-head"><span class="metric-icon">◷</span><h3>Data Analysis</h3></div><p>Preview pasted tabular data and its basic local structure.</p><button class="btn btn-quiet" data-navigate="data">Analyze sample data</button></article>
+        <article class="card tool-card"><div class="tool-card-head"><span class="metric-icon">文</span><h3>Translation Assistant</h3></div><p>Prepare text and target-language instructions for a future connected model.</p><button class="btn btn-quiet" data-navigate="translate">Open translation assistant</button></article>
+        <article class="card tool-card"><div class="tool-card-head"><span class="metric-icon">▧</span><h3>AI Image Generator</h3></div><p>Compose and save image prompts. Image creation is not connected.</p><button class="btn btn-quiet" data-navigate="image">Open image studio</button></article>
+      </div></section>
+
+      <section class="page" id="text" aria-labelledby="textTitle"><div class="page-head"><div><div class="eyebrow">Writing workspace</div><h1 id="textTitle">AI Text Generator</h1><p>Build a writing brief and see a local demo preview.</p></div></div><div class="notice">No AI API is connected. The preview confirms your brief and offers a prompt template; it does not generate content.</div><div class="dashboard-grid equal"><form class="card" id="textForm"><div class="card-heading"><h2>Writing brief</h2><span class="pill purple">Local demo</span></div><div class="field"><label for="textType">Content type</label><select id="textType" required><option value="Blog post">Blog post</option><option value="Email">Email</option><option value="Product description">Product description</option><option value="Social post">Social post</option></select></div><div class="field"><label for="textPrompt">What should it cover?</label><textarea id="textPrompt" required minlength="8" maxlength="1200" placeholder="Describe your topic, audience, and key points..."></textarea></div><div class="field"><label for="textTone">Tone</label><select id="textTone"><option>Clear and professional</option><option>Friendly and conversational</option><option>Concise and direct</option><option>Creative and upbeat</option></select></div><button class="btn btn-primary" type="submit">Preview brief</button></form><div class="card"><div class="card-heading"><h2>Preview</h2></div><div class="result-box" id="textResult" aria-live="polite"><p class="result-placeholder">Your local prompt preview will appear here.</p></div></div></div></section>
+
+      <section class="page" id="code" aria-labelledby="codeTitle"><div class="page-head"><div><div class="eyebrow">Developer workspace</div><h1 id="codeTitle">AI Code Assistant</h1><p>Prepare a coding request and inspect a safe local demo preview.</p></div></div><div class="notice">No code model is connected. Do not rely on demo output as generated code or execute unreviewed code.</div><div class="dashboard-grid equal"><form class="card" id="codeForm"><div class="field"><label for="codeLanguage">Language</label><select id="codeLanguage"><option>JavaScript</option><option>TypeScript</option><option>Python</option><option>Java</option><option>C#</option></select></div><div class="field"><label for="codePrompt">Describe the coding task</label><textarea id="codePrompt" required minlength="8" maxlength="1200" placeholder="Describe the function, bug, or code question..."></textarea></div><button class="btn btn-primary" type="submit">Preview request</button></form><div class="card"><div class="card-heading"><h2>Request preview</h2></div><div class="result-box" id="codeResult" aria-live="polite"><p class="result-placeholder">Your request preview will appear here. No code will be generated.</p></div></div></div></section>
+
+      <section class="page" id="image" aria-labelledby="imageTitle"><div class="page-head"><div><div class="eyebrow">Creative workspace</div><h1 id="imageTitle">AI Image Generator</h1><p>Compose image prompts and save ideas to your saved items.</p></div></div><div class="notice">Image generation is not connected. This interface stores prompts locally; it does not create or display generated images.</div><div class="dashboard-grid equal"><form class="card" id="imageForm"><div class="field"><label for="imagePrompt">Describe your image</label><textarea id="imagePrompt" required minlength="8" maxlength="800" placeholder="A calm lavender workspace at sunrise, editorial illustration..."></textarea></div><div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label for="imageStyle">Style</label><select id="imageStyle"><option>Editorial illustration</option><option>Photorealistic</option><option>3D render</option><option>Minimalist</option></select></div><div class="field"><label for="imageRatio">Aspect ratio</label><select id="imageRatio"><option>1:1 Square</option><option>16:9 Landscape</option><option>9:16 Portrait</option></select></div></div><div class="form-actions"><button class="btn btn-primary" type="submit">Preview &amp; save prompt</button><button class="btn btn-secondary" type="reset">Clear</button></div></form><div class="card"><div class="card-heading"><h2>Prompt preview</h2><span class="pill">No image generated</span></div><div class="result-box" id="imageResult" aria-live="polite"><p class="result-placeholder">Your prompt preview will appear here.</p></div></div></div></section>
+
+      <section class="page" id="documents" aria-labelledby="documentsTitle"><div class="page-head"><div><div class="eyebrow">Document workspace</div><h1 id="documentsTitle">AI Document Assistant</h1><p>Paste text to create a local extractive preview or organize a document note.</p></div></div><div class="notice">Local demo only: text stays in this browser page and is not uploaded or processed by an AI model.</div><div class="dashboard-grid equal"><form class="card" id="documentForm"><div class="field"><label for="documentText">Document text</label><textarea id="documentText" required minlength="40" maxlength="10000" style="min-height:210px" placeholder="Paste or type document text here (at least 40 characters)..."></textarea><span class="field-hint">For privacy, do not paste confidential or sensitive information.</span></div><button class="btn btn-primary" type="submit">Create local summary preview</button></form><div class="card"><div class="card-heading"><h2>Summary preview</h2></div><div class="result-box" id="documentResult" aria-live="polite"><p class="result-placeholder">A local excerpt preview will appear here.</p></div></div></div></section>
+
+      <section class="page" id="data" aria-labelledby="dataTitle"><div class="page-head"><div><div class="eyebrow">Analysis workspace</div><h1 id="dataTitle">AI Data Analysis</h1><p>Inspect a small pasted CSV sample using local browser logic.</p></div></div><div class="notice">This is a basic local preview, not AI analysis. Data is not uploaded.</div><div class="dashboard-grid equal"><form class="card" id="dataForm"><div class="field"><label for="dataInput">CSV data</label><textarea id="dataInput" required minlength="5" maxlength="10000" style="min-height:190px" placeholder="month,requests,credits&#10;Aug,340,1200&#10;Sep,410,1480"></textarea></div><button class="btn btn-primary" type="submit">Inspect sample</button></form><div class="card"><div class="card-heading"><h2>Data preview</h2></div><div class="result-box" id="dataResult" aria-live="polite"><p class="result-placeholder">Basic row and column counts will appear here.</p></div></div></div></section>
+
+      <section class="page" id="translate" aria-labelledby="translateTitle"><div class="page-head"><div><div class="eyebrow">Language workspace</div><h1 id="translateTitle">Translation Assistant</h1><p>Prepare a translation brief with clear language and tone options.</p></div></div><div class="notice">Translation is not connected to an AI or translation service. The preview only formats your request.</div><div class="dashboard-grid equal"><form class="card" id="translateForm"><div class="field"><label for="translateText">Text to translate</label><textarea id="translateText" required minlength="2" maxlength="3000" placeholder="Enter text to prepare a translation request..."></textarea></div><div class="field"><label for="targetLanguage">Translate to</label><select id="targetLanguage"><option>Spanish</option><option>French</option><option>German</option><option>Japanese</option><option>Hindi</option><option>Portuguese</option></select></div><button class="btn btn-primary" type="submit">Preview translation brief</button></form><div class="card"><div class="card-heading"><h2>Translation brief</h2></div><div class="result-box" id="translateResult" aria-live="polite"><p class="result-placeholder">Your formatted brief will appear here.</p></div></div></div></section>
+
+      <section class="page" id="models" aria-labelledby="modelsTitle"><div class="page-head"><div><div class="eyebrow">Operations</div><h1 id="modelsTitle">AI Model Monitoring</h1><p>Review illustrative model health, latency, and request volume.</p></div><button class="btn btn-secondary" id="refreshModels">↻ Refresh demo metrics</button></div><div class="notice">Model data below is static illustrative demo data and does not represent live endpoints or monitoring.</div><div class="model-grid">
+        <article class="card"><div class="card-heading"><div><h3>Text Assistant</h3><p>Language · v2.4</p></div><span class="pill success">Operational</span></div><div class="metric-value">184<span style="font-size:11px;color:var(--muted);font-weight:500"> ms</span></div><div class="metric-note">Demo latency · 98.8% availability</div><div class="progress-track"><span style="width:88%"></span></div></article>
+        <article class="card"><div class="card-heading"><div><h3>Insight Classifier</h3><p>Classification · v1.8</p></div><span class="pill success">Operational</span></div><div class="metric-value">236<span style="font-size:11px;color:var(--muted);font-weight:500"> ms</span></div><div class="metric-note">Demo latency · 99.1% availability</div><div class="progress-track"><span style="width:93%"></span></div></article>
+        <article class="card"><div class="card-heading"><div><h3>Image Tagger</h3><p>Vision · v1.2</p></div><span class="pill warning">Maintenance</span></div><div class="metric-value">412<span style="font-size:11px;color:var(--muted);font-weight:500"> ms</span></div><div class="metric-note">Demo latency · 96.4% availability</div><div class="progress-track"><span style="width:64%"></span></div></article>
+      </div><article class="card" style="margin-top:15px"><div class="card-heading"><div><h2>Model activity</h2><p>Sample request volume over recent days</p></div></div><div class="chart-box"><canvas id="modelChart" aria-label="Illustrative model request volume"></canvas></div></article></section>
+
+      <section class="page" id="usage" aria-labelledby="usageTitle"><div class="page-head"><div><div class="eyebrow">Plan &amp; consumption</div><h1 id="usageTitle">AI Usage &amp; Credits</h1><p>Track illustrative monthly credit consumption and recent requests.</p></div><button class="btn btn-primary" id="downloadUsage">↓ Export usage CSV</button></div><div class="metrics"><article class="card metric-card"><div class="metric-label">Monthly allowance</div><div class="metric-value">10,000</div><div class="metric-note">Credits on your Pro demo plan</div></article><article class="card metric-card"><div class="metric-label">Credits used</div><div class="metric-value">7,850</div><div class="metric-note">78.5% of monthly allowance</div></article><article class="card metric-card"><div class="metric-label">Credits remaining</div><div class="metric-value">2,150</div><div class="metric-note">Resets Nov 01, 2026</div></article><article class="card metric-card"><div class="metric-label">Requests this month</div><div class="metric-value">2,486</div><div class="metric-note">Illustrative demo metric</div></article></div><article class="card"><div class="card-heading"><div><h2>Credit history</h2><p>Recent sample activity</p></div></div><div class="data-table-wrap"><table><thead><tr><th>Date</th><th>Activity</th><th>Service</th><th>Credits</th><th>Status</th></tr></thead><tbody><tr><td>Oct 13, 2026</td><td>Outline draft preview</td><td>Text Assistant</td><td>−42</td><td><span class="pill success">Complete</span></td></tr><tr><td>Oct 12, 2026</td><td>Document review</td><td>Document Assistant</td><td>−68</td><td><span class="pill success">Complete</span></td></tr><tr><td>Oct 10, 2026</td><td>Prompt saved</td><td>Image Studio</td><td>−18</td><td><span class="pill success">Complete</span></td></tr><tr><td>Oct 01, 2026</td><td>Monthly plan credits</td><td>Subscription</td><td>+10,000</td><td><span class="pill purple">Added</span></td></tr></tbody></table></div></article></section>
+
+      <section class="page" id="history" aria-labelledby="historyTitle"><div class="page-head"><div><div class="eyebrow">Conversations</div><h1 id="historyTitle">Chat History</h1><p>Saved locally for this browser session only.</p></div><button class="btn btn-secondary" id="clearHistory">Clear history</button></div><div class="card"><div id="historyList" class="activity-list"></div></div></section>
+
+      <section class="page" id="saved" aria-labelledby="savedTitle"><div class="page-head"><div><div class="eyebrow">Your collection</div><h1 id="savedTitle">Saved Items</h1><p>Image prompts and workspace ideas saved in this browser.</p></div></div><div class="card"><div id="savedList" class="activity-list"></div></div></section>
+
+      <section class="page" id="notifications" aria-labelledby="notificationsTitle"><div class="page-head"><div><div class="eyebrow">Workspace updates</div><h1 id="notificationsTitle">Notifications</h1><p>Announcements and sample account updates.</p></div><button class="btn btn-secondary" id="markNotifications">Mark all as read</button></div><div class="card notification-list" id="notificationsList">
+        <div class="notification-item"><span class="activity-symbol">✦</span><span class="notification-copy"><strong>Monthly workspace insights are ready</strong><small>Your usage summary includes illustrative demo data. · Today</small></span><span class="pill purple">New</span></div>
+        <div class="notification-item"><span class="activity-symbol">◉</span><span class="notification-copy"><strong>Model monitoring overview</strong><small>Demo model status has been refreshed. · Yesterday</small></span><span class="pill">Read</span></div>
+        <div class="notification-item"><span class="activity-symbol">♧</span><span class="notification-copy"><strong>Welcome to your AI workspace</strong><small>Explore the tools and customize your preferences. · Oct 08</small></span><span class="pill">Read</span></div>
+      </div></section>
+
+      <section class="page" id="profile" aria-labelledby="profileTitle"><div class="page-head"><div><div class="eyebrow">Account</div><h1 id="profileTitle">My Profile</h1><p>Update your profile and review account information.</p></div></div><div class="profile-layout">
+        <article class="card profile-summary"><div class="avatar" id="profileAvatar">U</div><h2 id="profileName">User</h2><p id="profileEmail">user@stackly.ai</p><div class="profile-picture-controls"><input type="file" id="avatarUpload" accept="image/*" aria-label="Choose profile picture"></div><div class="profile-plan"><strong>Pro workspace plan</strong><p>10,000 monthly demo credits<br>Renews November 01, 2026</p></div><button class="btn btn-quiet" style="margin-top:12px;width:100%" data-navigate="usage">View usage &amp; credits</button></article>
+        <div style="display:grid;gap:15px"><form class="card" id="profileForm"><div class="card-heading"><h2>Account details</h2><span class="pill">Profile</span></div><div class="form-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px"><div class="field"><label for="profileNameInput">Full name</label><input id="profileNameInput" required minlength="2" maxlength="80" autocomplete="name"></div><div class="field"><label for="profileEmailInput">Email address</label><input id="profileEmailInput" type="email" required autocomplete="email" readonly aria-describedby="emailHint"><span class="field-hint" id="emailHint">Email is managed by your current login session.</span></div></div><button class="btn btn-primary" type="submit">Save profile</button></form>
+          <form class="card" id="passwordForm"><div class="card-heading"><h2>Change password</h2></div><div class="form-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px"><div class="field"><label for="newPassword">New password</label><input id="newPassword" type="password" minlength="8" autocomplete="new-password" required></div><div class="field"><label for="confirmPassword">Confirm new password</label><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required></div></div><p class="field-hint" style="margin-bottom:11px">This demo form validates locally. Password changes require a connected account service and are not saved.</p><button class="btn btn-secondary" type="submit">Validate password</button></form></div>
+      </div></section>
+
+      <section class="page" id="settings" aria-labelledby="settingsTitle"><div class="page-head"><div><div class="eyebrow">Personalize</div><h1 id="settingsTitle">Settings</h1><p>Manage local preferences and notification choices.</p></div></div><form class="card" id="settingsForm"><div class="card-heading"><div><h2>Notification preferences</h2><p>Saved in this browser using localStorage.</p></div></div><div class="settings-list">
+        <label class="setting-row"><span><strong>Project updates</strong><small>Progress and collaboration activity</small></span><input class="switch" type="checkbox" name="projectUpdates"></label>
+        <label class="setting-row"><span><strong>Usage alerts</strong><small>Credit usage and monthly summaries</small></span><input class="switch" type="checkbox" name="usageAlerts"></label>
+        <label class="setting-row"><span><strong>Product announcements</strong><small>New tools and workspace updates</small></span><input class="switch" type="checkbox" name="announcements"></label>
+        <label class="setting-row"><span><strong>Security notifications</strong><small>Sign-in and account security notices</small></span><input class="switch" type="checkbox" name="securityAlerts"></label>
+      </div><button class="btn btn-primary" style="margin-top:17px" type="submit">Save preferences</button></form></section>
+
+      <section class="page" id="help" aria-labelledby="helpTitle"><div class="page-head"><div><div class="eyebrow">We’re here to help</div><h1 id="helpTitle">Help &amp; Support</h1><p>Find quick answers or send a support request.</p></div></div><div class="dashboard-grid equal"><div class="card"><div class="card-heading"><h2>Frequently asked questions</h2></div><div class="settings-list"><details class="setting-row"><summary><strong>Are AI tools connected?</strong></summary><small>Not in this demo dashboard. No AI API is configured, and generated outputs are clearly labeled as local previews.</small></details><details class="setting-row"><summary><strong>Where are my preferences saved?</strong></summary><small>Notification preferences and profile display name are saved in this browser’s localStorage.</small></details><details class="setting-row"><summary><strong>How do I sign out?</strong></summary><small>Use Logout at the bottom of the sidebar. This ends the local login session and returns to the sign-in page.</small></details></div></div><form class="card" id="supportForm"><div class="card-heading"><h2>Contact support</h2></div><div class="field"><label for="supportSubject">Subject</label><input id="supportSubject" required maxlength="100" placeholder="What do you need help with?"></div><div class="field"><label for="supportMessage">Message</label><textarea id="supportMessage" required minlength="10" maxlength="1200" placeholder="Tell us a little more..."></textarea></div><button class="btn btn-primary" type="submit">Prepare support request</button><p class="field-hint" style="margin-top:10px">Demo only: this form does not send email or submit to a support service.</p></form></div></section>
+    </div>
+  </main>
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+  <script>
+    (() => {
+      "use strict";
+      const storageKeys = { profile: "stacklyAiUserProfile", preferences: "stacklyAiUserPreferences", saved: "stacklyAiSavedItems" };
+      const readJson = (key, fallback) => {
+        try {
+          const value = localStorage.getItem(key);
+          return value ? JSON.parse(value) : fallback;
+        } catch (error) {
+          console.error(`Unable to read ${key} from localStorage.`, error);
+          return fallback;
+        }
+      };
+      let loginData = null;
+      try {
+        loginData = JSON.parse(localStorage.getItem("restaurantLogin"));
+      } catch (error) {
+        console.error("Unable to read the current login session.", error);
+      }
+      if (!loginData || !loginData.loggedIn || loginData.role !== "user" || !loginData.email) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      const mobileMenu = document.getElementById("mobileMenu");
+      const pages = [...document.querySelectorAll(".page")];
+      const navButtons = [...document.querySelectorAll(".nav-btn")];
+      const toastRegion = document.getElementById("toastRegion");
+      const defaultName = loginData.name || loginData.email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, character => character.toUpperCase());
+      const profile = readJson(storageKeys.profile, {});
+      const displayName = profile.name || defaultName;
+      const setAvatar = (element, name, image) => {
+        if (image) element.innerHTML = `<img src="${image}" alt="">`;
+        else element.textContent = (name || "U").trim().charAt(0).toUpperCase() || "U";
+      };
+      document.getElementById("userName").textContent = displayName;
+      document.getElementById("userEmail").textContent = loginData.email;
+      document.querySelectorAll("[data-user-name]").forEach(element => element.textContent = displayName.split(" ")[0]);
+      document.getElementById("profileName").textContent = displayName;
+      document.getElementById("profileEmail").textContent = loginData.email;
+      document.getElementById("profileNameInput").value = displayName;
+      document.getElementById("profileEmailInput").value = loginData.email;
+      setAvatar(document.getElementById("userAvatar"), displayName, profile.avatar);
+      setAvatar(document.getElementById("profileAvatar"), displayName, profile.avatar);
+
+      function notify(message, isError = false) {
+        const toast = document.createElement("div");
+        toast.className = `toast${isError ? " error" : ""}`;
+        toast.textContent = message;
+        toastRegion.append(toast);
+        window.setTimeout(() => toast.remove(), 3600);
+      }
+      function setMobileMenuOpen(isOpen) {
+        sidebar.classList.toggle("open", isOpen);
+        overlay.classList.toggle("show", isOpen);
+        mobileMenu.textContent = isOpen ? "×" : "☰";
+        mobileMenu.setAttribute("aria-expanded", String(isOpen));
+        mobileMenu.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+      }
+      function showPage(id) {
+        const target = document.getElementById(id);
+        if (!target || !target.classList.contains("page")) return;
+        pages.forEach(page => page.classList.toggle("active", page === target));
+        navButtons.forEach(button => button.classList.toggle("active", button.dataset.page === id));
+        closeMobileMenu();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (id === "history") renderHistory();
+        if (id === "saved") renderSaved();
+      }
+      function closeMobileMenu() { setMobileMenuOpen(false); }
+      mobileMenu.addEventListener("click", () => setMobileMenuOpen(!sidebar.classList.contains("open")));
+      overlay.addEventListener("click", closeMobileMenu);
+      navButtons.forEach(button => button.addEventListener("click", () => showPage(button.dataset.page)));
+      document.addEventListener("click", event => {
+        const navigateButton = event.target.closest("[data-navigate]");
+        if (navigateButton) showPage(navigateButton.dataset.navigate);
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeMobileMenu();
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+          event.preventDefault();
+          document.getElementById("globalSearch").focus();
+        }
+      });
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        if (!window.confirm("Log out of your STACKLY AI account?")) return;
+        localStorage.removeItem("restaurantLogin");
+        window.location.href = "login.html";
+      });
+
+      document.getElementById("globalSearch").addEventListener("keydown", event => {
+        if (event.key !== "Enter") return;
+        const query = event.currentTarget.value.trim().toLowerCase();
+        if (!query) return;
+        const match = navButtons.find(button => button.textContent.toLowerCase().includes(query));
+        if (match) {
+          showPage(match.dataset.page);
+          notify(`Opened ${match.textContent.trim()}.`);
+          return;
+        }
+        const visiblePage = document.querySelector(".page.active");
+        const searchable = [...visiblePage.querySelectorAll("h1,h2,h3,.tool-copy strong,.activity-copy strong,.project-card h3")];
+        const result = searchable.find(item => item.textContent.toLowerCase().includes(query));
+        if (result) {
+          result.scrollIntoView({ behavior: "smooth", block: "center" });
+          notify(`Found “${result.textContent.trim()}” on this page.`);
+        } else notify("No matching page or item found. Try a menu name such as “projects” or “models.”", true);
+      });
+
+      const initialActivities = [
+        { title: "Outline draft preview", detail: "Text Generator · Today, 10:42 AM", credits: "42 credits" },
+        { title: "Customer feedback review", detail: "Document Assistant · Yesterday", credits: "68 credits" },
+        { title: "Product launch prompt saved", detail: "Image Studio · Oct 10, 2026", credits: "18 credits" }
+      ];
+      function renderActivity(list, items, emptyMessage) {
+        list.replaceChildren();
+        if (!items.length) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state";
+          empty.textContent = emptyMessage;
+          list.append(empty);
+          return;
+        }
+        items.forEach(item => {
+          const row = document.createElement("div");
+          row.className = "activity-item";
+          const symbol = document.createElement("span");
+          symbol.className = "activity-symbol";
+          symbol.textContent = item.type === "prompt" ? "▧" : "✧";
+          const copy = document.createElement("span");
+          copy.className = "activity-copy";
+          const title = document.createElement("strong");
+          title.textContent = item.title;
+          const detail = document.createElement("small");
+          detail.textContent = item.detail || item.createdAt || "Saved in this browser";
+          copy.append(title, detail);
+          row.append(symbol, copy);
+          if (item.credits) {
+            const credits = document.createElement("span");
+            credits.className = "activity-credits";
+            credits.textContent = item.credits;
+            row.append(credits);
+          }
+          list.append(row);
+        });
+      }
+      renderActivity(document.getElementById("recentActivity"), initialActivities.slice(0, 3), "No recent activity.");
+      const historyItems = [];
+      function renderHistory() {
+        renderActivity(document.getElementById("historyList"), historyItems, "No chats in this page session yet. Start a conversation in AI Chat Assistant.");
+      }
+      function renderSaved() {
+        renderActivity(document.getElementById("savedList"), readJson(storageKeys.saved, []), "No saved items yet. Save an image prompt from the Image Generator.");
+      }
+
+      const projectData = [
+        { name: "Customer Insights", description: "Analyze support conversations and uncover recurring themes.", progress: 72, status: "On track", due: "Oct 24" },
+        { name: "Knowledge Base Refresh", description: "Organize and summarize internal product documentation.", progress: 46, status: "In review", due: "Nov 02" },
+        { name: "Forecast Prototype", description: "Prototype a demand forecasting workflow with sample data.", progress: 28, status: "In progress", due: "Nov 12" }
+      ];
+      function renderProjects() {
+        const grid = document.getElementById("projectsGrid");
+        grid.replaceChildren();
+        projectData.forEach(project => {
+          const card = document.createElement("article");
+          card.className = "card project-card";
+          const top = document.createElement("div");
+          top.className = "project-top";
+          const title = document.createElement("h3");
+          title.textContent = project.name;
+          const status = document.createElement("span");
+          status.className = `pill ${project.status === "On track" ? "success" : project.status === "In review" ? "warning" : "purple"}`;
+          status.textContent = project.status;
+          top.append(title, status);
+          const description = document.createElement("p");
+          description.textContent = project.description;
+          const progress = document.createElement("div");
+          progress.className = "progress-track";
+          const fill = document.createElement("span");
+          fill.style.width = `${project.progress}%`;
+          progress.append(fill);
+          const meta = document.createElement("div");
+          meta.className = "project-meta";
+          meta.innerHTML = `<span>${project.progress}% complete</span><span>Due ${project.due}</span>`;
+          card.append(top, description, progress, meta);
+          grid.append(card);
+        });
+      }
+      renderProjects();
+      document.getElementById("newProjectBtn").addEventListener("click", () => {
+        const name = window.prompt("Name your AI project:");
+        if (!name || !name.trim()) return;
+        projectData.unshift({ name: name.trim().slice(0, 80), description: "New project workspace. Add goals and tasks as your work progresses.", progress: 0, status: "In progress", due: "Not set" });
+        renderProjects();
+        notify("Project added to this page.");
+      });
+
+      const chatMessages = document.getElementById("chatMessages");
+      const chatForm = document.getElementById("chatForm");
+      function appendChat(text, isUser) {
+        const message = document.createElement("div");
+        message.className = `chat-message${isUser ? " user" : ""}`;
+        message.textContent = text;
+        chatMessages.append(message);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      chatForm.addEventListener("submit", event => {
+        event.preventDefault();
+        if (!chatForm.reportValidity()) return;
+        const input = document.getElementById("chatInput");
+        const prompt = input.value.trim();
+        if (!prompt) return;
+        appendChat(prompt, true);
+        historyItems.unshift({ title: prompt.slice(0, 70), detail: `AI Chat Assistant · ${new Date().toLocaleString()}` });
+        input.value = "";
+        const reply = "This is a local demo response, not AI-generated. Connect an AI provider to receive a real answer. Your request is ready to send: “" + prompt.slice(0, 180) + (prompt.length > 180 ? "…" : "") + "”";
+        window.setTimeout(() => appendChat(reply, false), 450);
+      });
+      document.getElementById("clearChat").addEventListener("click", () => {
+        chatMessages.replaceChildren();
+        appendChat("Conversation cleared. I’m a local demo assistant; no live AI service is connected.", false);
+        notify("Conversation cleared.");
+      });
+      document.getElementById("clearHistory").addEventListener("click", () => {
+        historyItems.length = 0;
+        renderHistory();
+        notify("Chat history cleared for this page session.");
+      });
+
+      function showResult(id, title, text) {
+        const box = document.getElementById(id);
+        const heading = document.createElement("h3");
+        heading.textContent = title;
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        box.replaceChildren(heading, paragraph);
+      }
+      document.getElementById("textForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        const type = document.getElementById("textType").value;
+        const tone = document.getElementById("textTone").value;
+        const prompt = document.getElementById("textPrompt").value.trim();
+        showResult("textResult", "Local prompt preview", `Content type: ${type}\nTone: ${tone}\n\nWriting brief:\n${prompt}\n\nNo content was generated. Connect an AI provider to generate a draft.`);
+        notify("Brief preview prepared locally.");
+      });
+      document.getElementById("codeForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        showResult("codeResult", "Local request preview", `Language: ${document.getElementById("codeLanguage").value}\n\nTask:\n${document.getElementById("codePrompt").value.trim()}\n\nNo source code was generated. Connect a code model to receive a suggestion.`);
+        notify("Code request preview prepared.");
+      });
+      document.getElementById("imageForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        const item = { type: "prompt", title: document.getElementById("imagePrompt").value.trim().slice(0, 100), detail: `${document.getElementById("imageStyle").value} · ${document.getElementById("imageRatio").value}`, createdAt: new Date().toLocaleString() };
+        showResult("imageResult", "Saved prompt preview", `${item.title}\n\nStyle: ${document.getElementById("imageStyle").value}\nAspect ratio: ${document.getElementById("imageRatio").value}\n\nNo image was generated. This prompt is saved locally in your browser.`);
+        const saved = readJson(storageKeys.saved, []);
+        saved.unshift(item);
+        try {
+          localStorage.setItem(storageKeys.saved, JSON.stringify(saved.slice(0, 50)));
+          notify("Prompt saved to Saved Items.");
+        } catch (error) {
+          console.error("Unable to save image prompt.", error);
+          notify("Prompt preview is ready, but it could not be saved in this browser.", true);
+        }
+      });
+      document.getElementById("documentForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        const text = document.getElementById("documentText").value.trim().replace(/\s+/g, " ");
+        const excerpt = text.length > 420 ? `${text.slice(0, 420).trim()}…` : text;
+        showResult("documentResult", "Local excerpt preview", `${excerpt}\n\n${text.length} characters provided. This is an excerpt, not an AI-generated summary.`);
+        notify("Local document excerpt prepared.");
+      });
+      document.getElementById("dataForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        const rows = document.getElementById("dataInput").value.trim().split(/\r?\n/).filter(Boolean);
+        const headers = rows[0].split(",").map(value => value.trim()).filter(Boolean);
+        const dataRows = Math.max(0, rows.length - 1);
+        showResult("dataResult", "Local CSV inspection", `Columns: ${headers.length} (${headers.join(", ") || "none detected"})\nData rows: ${dataRows}\n\nThis is a basic text preview only. No AI analysis or statistical validation was performed.`);
+        notify("CSV sample inspected locally.");
+      });
+      document.getElementById("translateForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        showResult("translateResult", "Local translation brief", `Target language: ${document.getElementById("targetLanguage").value}\n\nText to translate:\n${document.getElementById("translateText").value.trim()}\n\nNo translation was performed. Connect a translation service to translate text.`);
+        notify("Translation brief prepared locally.");
+      });
+
+      document.getElementById("profileForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        const name = document.getElementById("profileNameInput").value.trim();
+        const current = readJson(storageKeys.profile, {});
+        const next = { ...current, name };
+        try {
+          localStorage.setItem(storageKeys.profile, JSON.stringify(next));
+          document.getElementById("userName").textContent = name;
+          document.getElementById("profileName").textContent = name;
+          document.querySelectorAll("[data-user-name]").forEach(element => element.textContent = name.split(" ")[0]);
+          if (!current.avatar) {
+            setAvatar(document.getElementById("userAvatar"), name);
+            setAvatar(document.getElementById("profileAvatar"), name);
+          }
+          notify("Profile display name saved.");
+        } catch (error) {
+          console.error("Unable to save profile settings.", error);
+          notify("Profile could not be saved in this browser.", true);
+        }
+      });
+      document.getElementById("avatarUpload").addEventListener("change", event => {
+        const file = event.currentTarget.files && event.currentTarget.files[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+          notify("Choose an image file for your profile picture.", true);
+          event.currentTarget.value = "";
+          return;
+        }
+        if (file.size > 1024 * 1024) {
+          notify("Please choose an image smaller than 1 MB.", true);
+          event.currentTarget.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          const current = readJson(storageKeys.profile, {});
+          try {
+            localStorage.setItem(storageKeys.profile, JSON.stringify({ ...current, avatar: reader.result }));
+            setAvatar(document.getElementById("userAvatar"), displayName, reader.result);
+            setAvatar(document.getElementById("profileAvatar"), displayName, reader.result);
+            notify("Profile picture saved in this browser.");
+          } catch (error) {
+            console.error("Unable to save the profile picture.", error);
+            notify("Image could not be saved. Try a smaller file.", true);
+          }
+        });
+        reader.addEventListener("error", () => notify("Unable to read this image file.", true));
+        reader.readAsDataURL(file);
+      });
+      document.getElementById("passwordForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        const password = document.getElementById("newPassword").value;
+        const confirmation = document.getElementById("confirmPassword").value;
+        if (password !== confirmation) {
+          document.getElementById("confirmPassword").setCustomValidity("Passwords do not match.");
+          document.getElementById("confirmPassword").reportValidity();
+          document.getElementById("confirmPassword").setCustomValidity("");
+          return;
+        }
+        event.currentTarget.reset();
+        notify("Password format validated. A connected account service is needed to change it.");
+      });
+
+      const settingsForm = document.getElementById("settingsForm");
+      const defaults = { projectUpdates: true, usageAlerts: true, announcements: false, securityAlerts: true };
+      const preferences = { ...defaults, ...readJson(storageKeys.preferences, {}) };
+      Object.entries(preferences).forEach(([key, value]) => {
+        const input = settingsForm.elements.namedItem(key);
+        if (input) input.checked = Boolean(value);
+      });
+      settingsForm.addEventListener("submit", event => {
+        event.preventDefault();
+        const values = Object.fromEntries([...settingsForm.querySelectorAll('input[type="checkbox"]')].map(input => [input.name, input.checked]));
+        try {
+          localStorage.setItem(storageKeys.preferences, JSON.stringify(values));
+          notify("Notification preferences saved.");
+        } catch (error) {
+          console.error("Unable to save notification preferences.", error);
+          notify("Preferences could not be saved in this browser.", true);
+        }
+      });
+      document.getElementById("supportForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        const subject = document.getElementById("supportSubject").value.trim();
+        event.currentTarget.reset();
+        notify(`Support request “${subject.slice(0, 50)}” validated. No message was sent.`);
+      });
+      document.getElementById("markNotifications").addEventListener("click", () => {
+        document.querySelectorAll("#notificationsList .pill.purple").forEach(pill => {
+          pill.className = "pill";
+          pill.textContent = "Read";
+        });
+        document.querySelector(".notification-dot").hidden = true;
+        notify("Notifications marked as read.");
+      });
+      document.getElementById("refreshModels").addEventListener("click", () => notify("Demo model metrics refreshed. These values are illustrative."));
+      document.getElementById("downloadUsage").addEventListener("click", () => {
+        const csv = "Date,Activity,Service,Credits,Status\nOct 13 2026,Outline draft preview,Text Assistant,-42,Complete\nOct 12 2026,Document review,Document Assistant,-68,Complete\nOct 10 2026,Prompt saved,Image Studio,-18,Complete\nOct 01 2026,Monthly plan credits,Subscription,10000,Added";
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+        link.download = "stackly-ai-usage-demo.csv";
+        link.click();
+        URL.revokeObjectURL(link.href);
+        notify("Demo usage CSV exported.");
+      });
+
+      if (window.Chart) {
+        Chart.defaults.font.family = "Inter, Arial, sans-serif";
+        Chart.defaults.color = "#827e96";
+        const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: "#211b3a", padding: 10, titleFont: { size: 10 }, bodyFont: { size: 10 } } } };
+        new Chart(document.getElementById("usageChart"), { type: "line", data: { labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"], datasets: [{ label: "Requests", data: [860, 1120, 980, 1430, 1590, 1980, 2486], borderColor: "#7554e8", backgroundColor: "rgba(117,84,232,.10)", fill: true, tension: .38, pointRadius: 3, pointBackgroundColor: "#7554e8", yAxisID: "y" }, { label: "Credits (hundreds)", data: [42, 58, 51, 67, 73, 81, 79], borderColor: "#b6a6ff", tension: .38, pointRadius: 2, yAxisID: "y1" }] }, options: { ...chartOptions, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: "#f0eef5" }, ticks: { font: { size: 9 } } }, y1: { position: "right", beginAtZero: true, grid: { display: false }, ticks: { font: { size: 9 } } } }, plugins: { ...chartOptions.plugins, legend: { display: true, position: "bottom", labels: { usePointStyle: true, boxWidth: 7, font: { size: 9 } } } } } });
+        new Chart(document.getElementById("serviceChart"), { type: "doughnut", data: { labels: ["Text generation", "Document AI", "Data analysis", "Image tools", "Other"], datasets: [{ data: [38, 24, 17, 13, 8], backgroundColor: ["#6849d4", "#927bf0", "#b4a5f5", "#d0c7fa", "#e9e4fc"], borderWidth: 0, hoverOffset: 5 }] }, options: { ...chartOptions, cutout: "69%", plugins: { ...chartOptions.plugins, legend: { display: true, position: "bottom", labels: { usePointStyle: true, boxWidth: 8, padding: 12, font: { size: 9 } } } } } });
+        new Chart(document.getElementById("activityChart"), { type: "bar", data: { labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], datasets: [{ label: "AI requests", data: [42, 58, 51, 73, 66, 32, 24], backgroundColor: "#9c87f1", borderRadius: 5, maxBarThickness: 24 }] }, options: { ...chartOptions, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 } } }, y: { beginAtZero: true, grid: { color: "#f0eef5" }, ticks: { font: { size: 9 } } } } } });
+        new Chart(document.getElementById("modelChart"), { type: "line", data: { labels: ["Oct 07", "Oct 08", "Oct 09", "Oct 10", "Oct 11", "Oct 12", "Oct 13"], datasets: [{ label: "Sample requests", data: [280, 320, 295, 410, 386, 452, 428], borderColor: "#7554e8", backgroundColor: "#7554e818", fill: true, tension: .35, pointRadius: 3 }] }, options: { ...chartOptions, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: "#f0eef5" } } } } });
+      } else {
+        document.querySelectorAll(".chart-box").forEach(box => {
+          const message = document.createElement("p");
+          message.className = "empty-state";
+          message.textContent = "Charts require an internet connection to load Chart.js.";
+          box.append(message);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

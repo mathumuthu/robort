@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexBot — AI &amp; Robotics Technology</title>
+<meta name="description" content="NexBot builds intelligent robots, autonomous systems and AI solutions for the industries of tomorrow.">
+<style>
+/* ============ DESIGN TOKENS ============ */
+:root{
+  --bg:#05070f;
+  --bg-2:#0a0e1c;
+  --surface:#0d1226;
+  --surface-2:#101736;
+  --border:rgba(120,140,255,.14);
+  --text:#eef1ff;
+  --muted:#9aa3c7;
+  --purple:#7c3aed;
+  --purple-2:#8b5cf6;
+  --cyan:#22d3ee;
+  --grad:linear-gradient(92deg,#7c3aed 0%,#6366f1 45%,#22d3ee 100%);
+  --radius:16px;
+  --header-h:78px;
+  --font:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
+.container{width:min(1200px,92%);margin:0 auto}
+section{padding:96px 0;position:relative}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--cyan);font-weight:600;margin-bottom:16px;
+}
+.eyebrow::before{content:"";width:34px;height:2px;background:var(--grad);border-radius:2px}
+h2.section-title{font-size:clamp(1.9rem,4vw,2.9rem);font-weight:800;line-height:1.2;letter-spacing:-.02em}
+.section-lead{color:var(--muted);max-width:640px;margin-top:14px}
+
+/* ============ BUTTONS ============ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:15px 34px;border-radius:12px;font-weight:700;font-size:.95rem;
+  cursor:pointer;border:none;transition:transform .3s ease,box-shadow .3s ease,background .3s ease;
+  white-space:nowrap;
+}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;box-shadow:0 8px 28px rgba(124,58,237,.35)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 38px rgba(124,58,237,.5)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid rgba(139,92,246,.5)}
+.btn-ghost:hover{background:rgba(139,92,246,.12);transform:translateY(-3px)}
+.btn-sm{padding:11px 26px;font-size:.88rem}
+
+/* ============ HEADER ============ */
+.site-header{
+  position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--header-h);
+  background:rgba(5,7,15,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(120,140,255,.08);
+}
+.header-inner{height:var(--header-h);display:flex;align-items:center;justify-content:space-between;gap:24px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo img{width:42px;height:42px;object-fit:contain;flex:0 0 auto}
+.logo-text{font-size:1.45rem;font-weight:800;letter-spacing:-.01em}
+.logo-text span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.main-nav{display:flex;align-items:center;gap:34px}
+.main-nav a{position:relative;font-weight:600;font-size:.95rem;color:#cfd5f0;transition:color .25s;padding:6px 0}
+.main-nav a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--grad);border-radius:2px;transition:width .3s ease}
+.main-nav a:hover,.main-nav a.active{color:#fff}
+.main-nav a:hover::after,.main-nav a.active::after{width:100%}
+.header-actions{display:flex;align-items:center;gap:14px}
+.menu-toggle{
+  display:none;background:none;border:none;cursor:pointer;width:44px;height:44px;
+  align-items:center;justify-content:center;border-radius:10px;
+  border:1px solid var(--border);
+}
+.menu-toggle svg{width:24px;height:24px;stroke:var(--text)}
+.menu-toggle .icon-close{display:none}
+.menu-toggle.open .icon-open{display:none}
+.menu-toggle.open .icon-close{display:block}
+
+/* ============ MOBILE NAV ============ */
+.mobile-nav{
+  position:fixed;top:var(--header-h);left:0;right:0;z-index:999;
+  background:rgba(7,10,22,.98);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:20px 5% 32px;transform:translateY(-115%);
+  transition:transform .45s cubic-bezier(.22,1,.36,1);
+}
+.mobile-nav.open{transform:translateY(0)}
+.mobile-nav a{
+  display:block;padding:15px 6px;font-size:1.05rem;font-weight:600;color:#cfd5f0;
+  border-bottom:1px solid rgba(120,140,255,.08);transition:color .25s,padding-left .25s;
+}
+.mobile-nav a:hover{color:#fff;padding-left:14px}
+.mobile-nav .btn{margin-top:22px;width:100%}
+
+/* ============ HERO ============ */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  padding:calc(var(--header-h) + 60px) 0 100px;
+  background:linear-gradient(90deg,rgba(5,7,15,.96) 0%,rgba(5,7,15,.82) 42%,rgba(5,7,15,.25) 100%);
+}
+.hero h1{font-size:clamp(2.6rem,6.2vw,4.6rem);font-weight:800;line-height:1.12;letter-spacing:-.03em;max-width:15ch}
+.hero p{color:#c3c9e8;max-width:520px;margin:26px 0 38px;font-size:1.08rem}
+.hero-cta{display:flex;gap:16px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:clamp(28px,6vw,70px);margin-top:64px;flex-wrap:wrap}
+.hero-stats .stat h3{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-stats .stat p{color:var(--muted);font-size:.9rem}
+
+/* ============ TRUSTED BY ============ */
+.trusted{padding:54px 0;border-top:1px solid rgba(120,140,255,.07);border-bottom:1px solid rgba(120,140,255,.07);background:var(--bg-2)}
+.trusted-row{display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
+.trusted-label{font-weight:700;color:#c8cdea;font-size:.95rem;letter-spacing:.04em}
+.trusted-logos{display:flex;gap:clamp(22px,4vw,54px);flex-wrap:wrap;align-items:center}
+.trusted-logos span{font-size:1.15rem;font-weight:700;color:#5b6390;display:flex;align-items:center;gap:8px;transition:color .3s}
+.trusted-logos span:hover{color:#aab3e6}
+.trusted-logos i{width:14px;height:14px;border-radius:4px;background:var(--grad);display:inline-block;opacity:.75}
+
+/* ============ ABOUT ============ */
+.about-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.about-media{
+  border-radius:var(--radius);overflow:hidden;position:relative;min-height:420px;
+  background:linear-gradient(rgba(5,7,15,.35),rgba(5,7,15,.75));
+  border:1px solid var(--border);
+}
+.about-media .badge-float{
+  position:absolute;bottom:24px;left:24px;right:24px;
+  background:rgba(13,18,38,.82);backdrop-filter:blur(12px);
+  border:1px solid var(--border);border-radius:14px;padding:18px 22px;
+  display:flex;gap:16px;align-items:center;
+}
+.badge-float .num{font-size:1.9rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.badge-float p{color:var(--muted);font-size:.88rem;line-height:1.45}
+.about-copy h2{margin-bottom:20px}
+.about-copy p{color:var(--muted);margin-bottom:18px}
+.about-list{display:grid;gap:14px;margin:26px 0 34px}
+.about-list li{display:flex;gap:12px;align-items:flex-start;color:#cfd5f0;font-weight:500}
+.about-list li svg{flex-shrink:0;width:22px;height:22px;margin-top:2px}
+
+/* ============ WHY CHOOSE ============ */
+.choose{background:var(--bg-2);overflow:hidden}
+.choose-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:70px;align-items:center}
+.feature{display:flex;gap:22px;margin-top:34px}
+.feature-icon{
+  flex-shrink:0;width:58px;height:58px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(124,58,237,.22),rgba(34,211,238,.14));
+  border:1px solid rgba(139,92,246,.35);
+  display:flex;align-items:center;justify-content:center;
+}
+.feature-icon svg{width:28px;height:28px;stroke:#a78bfa}
+.feature h3{font-size:1.15rem;font-weight:700;margin-bottom:6px}
+.feature p{color:var(--muted);font-size:.95rem}
+.choose-media{position:relative}
+.choose-media img{border-radius:var(--radius);border:1px solid var(--border);width:100%;object-fit:cover;max-height:560px}
+.choose-media::before{
+  content:"";position:absolute;inset:-40px -40px auto auto;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(34,211,238,.25),transparent 70%);z-index:-1;
+}
+
+/* ============ SERVICES ============ */
+.services-head{text-align:center;max-width:760px;margin:0 auto 60px}
+.services-head .section-lead{margin-left:auto;margin-right:auto}
+.service-row{
+  display:grid;grid-template-columns:64px 1fr auto;gap:28px;align-items:center;
+  padding:32px 28px;border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--surface);margin-bottom:20px;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease;
+}
+.service-row:hover{transform:translateY(-5px);border-color:rgba(139,92,246,.45);box-shadow:0 18px 44px rgba(0,0,0,.45)}
+.service-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(34,211,238,.12));border:1px solid rgba(139,92,246,.35);display:flex;align-items:center;justify-content:center}
+.service-icon svg{width:28px;height:28px;stroke:#a78bfa}
+.service-row h3{font-size:1.2rem;font-weight:700;margin-bottom:6px}
+.service-row p{color:var(--muted);font-size:.94rem;max-width:560px}
+
+/* ============ CASE STUDIES ============ */
+.case{background:var(--bg-2)}
+.case-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:54px;flex-wrap:wrap}
+.case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.case-card{
+  position:relative;border-radius:var(--radius);overflow:hidden;height:400px;cursor:pointer;
+  border:1px solid var(--border);
+}
+.case-card img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.22,1,.36,1)}
+.case-card:hover img{transform:scale(1.07)}
+.case-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(5,7,15,.92) 100%)}
+.case-label{
+  position:absolute;left:22px;bottom:22px;z-index:2;
+  background:rgba(13,18,38,.85);backdrop-filter:blur(10px);
+  border:1px solid var(--border);border-radius:12px;padding:14px 24px;
+  font-weight:700;font-size:1.05rem;transition:background .3s;
+}
+.case-card:hover .case-label{background:rgba(124,58,237,.85)}
+
+/* ============ TESTIMONIALS ============ */
+.testi-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:56px}
+.testi-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:40px 38px;position:relative;transition:transform .35s ease,border-color .35s;
+}
+.testi-card:hover{transform:translateY(-5px);border-color:rgba(139,92,246,.4)}
+.testi-card .quote-mark{position:absolute;right:30px;bottom:24px;font-size:4.5rem;font-weight:800;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:.85}
+.stars{display:flex;gap:5px;margin-bottom:20px}
+.stars svg{width:19px;height:19px;fill:#fbbf24}
+.testi-card>p{color:#c3c9e8;font-size:1rem;margin-bottom:28px;max-width:92%}
+.testi-author{display:flex;align-items:center;gap:15px}
+.avatar{width:54px;height:54px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.15rem;color:#fff;flex-shrink:0}
+.testi-author h4{font-size:1rem;font-weight:700}
+.testi-author p{color:var(--muted);font-size:.85rem}
+
+/* ============ BLOG ============ */
+.blog{background:var(--bg-2)}
+.blog-head{text-align:center;margin-bottom:56px}
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.blog-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:34px 30px;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease;
+  display:flex;flex-direction:column;
+}
+.blog-card:hover{transform:translateY(-6px);border-color:rgba(139,92,246,.45);box-shadow:0 20px 48px rgba(0,0,0,.45)}
+.tag{display:inline-block;background:linear-gradient(135deg,rgba(34,211,238,.18),rgba(34,211,238,.08));border:1px solid rgba(34,211,238,.35);color:var(--cyan);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:8px;width:fit-content;margin-bottom:18px}
+.blog-meta{color:var(--muted);font-size:.85rem;margin-bottom:14px}
+.blog-card h3{font-size:1.2rem;font-weight:700;line-height:1.4;margin-bottom:12px}
+.blog-card>p{color:var(--muted);font-size:.93rem;margin-bottom:26px;flex:1}
+
+/* ============ FAQ ============ */
+.faq-wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+.faq-media{position:sticky;top:calc(var(--header-h) + 30px)}
+.faq-media img{border-radius:var(--radius);border:1px solid var(--border);width:100%;object-fit:cover;max-height:520px}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{
+  width:100%;background:none;border:none;color:var(--text);cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
+  padding:24px 4px;font-size:1.05rem;font-weight:700;text-align:left;font-family:var(--font);
+  transition:color .25s;
+}
+.faq-q:hover{color:var(--purple-2)}
+.faq-q .faq-icon{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1px solid rgba(139,92,246,.5);display:flex;align-items:center;justify-content:center;position:relative;transition:transform .4s ease,background .3s}
+.faq-q .faq-icon::before,.faq-q .faq-icon::after{content:"";position:absolute;background:var(--text);border-radius:2px}
+.faq-q .faq-icon::before{width:12px;height:2px}
+.faq-q .faq-icon::after{width:2px;height:12px;transition:opacity .3s}
+.faq-item.open .faq-icon{transform:rotate(180deg);background:rgba(139,92,246,.2)}
+.faq-item.open .faq-icon::after{opacity:0}
+.faq-item.open .faq-q{color:var(--cyan)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.22,1,.36,1)}
+.faq-a p{color:var(--muted);padding:0 4px 26px;font-size:.96rem}
+
+/* ============ CTA ============ */
+.cta-band{
+  background:linear-gradient(120deg,rgba(124,58,237,.16),rgba(34,211,238,.08)),var(--surface);
+  border:1px solid var(--border);border-radius:24px;
+  padding:clamp(44px,7vw,80px);text-align:center;
+}
+.cta-band h2{font-size:clamp(1.8rem,3.6vw,2.7rem);font-weight:800;margin-bottom:16px}
+.cta-band p{color:var(--muted);max-width:560px;margin:0 auto 34px}
+
+/* ============ FOOTER ============ */
+.site-footer{background:var(--bg-2);border-top:1px solid rgba(120,140,255,.08);padding:80px 0 0;margin-top:0}
+.footer-grid{display:grid;grid-template-columns:1.35fr 1fr 1.3fr 1.25fr;gap:clamp(24px,4vw,56px);padding-bottom:56px}
+.footer-brand p{color:var(--muted);font-size:.94rem;margin:20px 0 26px;max-width:340px}
+.footer-social{display:flex;gap:12px}
+.footer-social a{
+  width:42px;height:42px;border-radius:12px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;transition:background .3s,transform .3s,border-color .3s;
+}
+.footer-social a:hover{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.5);transform:translateY(-3px)}
+.footer-social svg{width:18px;height:18px;fill:#c3c9e8}
+.footer-col h4{font-size:1rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:22px;color:#fff}
+.footer-col ul{display:grid;gap:12px}
+.footer-col ul a{color:var(--muted);font-size:.94rem;transition:color .25s,padding-left .25s}
+.footer-col ul a:hover{color:var(--cyan);padding-left:6px}
+.footer-contact li{display:flex;gap:12px;color:var(--muted);font-size:.94rem;align-items:flex-start;min-width:0;overflow-wrap:anywhere}
+.footer-contact svg{flex-shrink:0;width:18px;height:18px;stroke:#8b5cf6;margin-top:3px}
+.footer-bottom{border-top:1px solid rgba(120,140,255,.08);padding:24px 0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.88rem}
+.footer-bottom a{color:#c3c9e8}
+.footer-bottom a:hover{color:var(--cyan)}
+
+/* ============ BACK TO TOP ============ */
+.to-top{
+  position:fixed;right:26px;bottom:26px;z-index:900;width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,#22d3ee,#0ea5e9);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(34,211,238,.35);
+  opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .35s,transform .35s;
+}
+.to-top.show{opacity:1;pointer-events:auto;transform:translateY(0)}
+.to-top svg{width:22px;height:22px;stroke:#04121a;stroke-width:3}
+
+/* ============ SCROLL REVEAL ============ */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal.d1{transition-delay:.12s}.reveal.d2{transition-delay:.24s}.reveal.d3{transition-delay:.36s}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:1024px){
+  .about-wrap,.choose-wrap,.faq-wrap{grid-template-columns:1fr;gap:44px}
+  .faq-media{position:static;order:-1}
+  .faq-media img{max-height:380px}
+  .case-grid,.blog-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:860px){
+  .main-nav{display:none}
+  .menu-toggle{display:flex}
+  section{padding:72px 0}
+  .hero{padding-top:calc(var(--header-h) + 44px)}
+  .testi-grid{grid-template-columns:1fr}
+  .service-row{grid-template-columns:56px 1fr;gap:18px}
+  .service-row .btn{grid-column:1/-1;justify-self:start}
+  .case-head{flex-direction:column;align-items:flex-start;gap:14px}
+}
+@media(max-width:640px){
+  :root{--header-h:68px}
+  .case-grid,.blog-grid{grid-template-columns:1fr}
+  .case-card{height:320px}
+  .footer-grid{grid-template-columns:1fr;gap:40px}
+  .footer-bottom{justify-content:center;text-align:center}
+  .btn{padding:14px 28px}
+  .header-actions .btn{padding:10px 20px;font-size:.85rem}
+  .trusted-row{flex-direction:column;align-items:flex-start}
+  .hero-stats{gap:24px}
+  .about-media{min-height:340px}
+}
+@media(max-width:400px){
+  .logo-text{font-size:1.2rem}
+  .logo img{width:34px;height:34px}
+  .header-actions .btn{display:none} /* login lives inside mobile menu too */
+}
+
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo" aria-label="STACKLYN home">
+      <img src="logoo%20-%20Copy.webp" alt="">
+      <span class="logo-text">STACK<span>LY</span></span>
+    </a>
+
+    <nav class="main-nav" aria-label="Primary">
+      <a href="index.html" class="active">Home</a>
+      <a href="about.html">About</a>
+      <a href="shop.html">Shop</a>
+      <a href="blog.html">Blog</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="log.html" class="btn btn-primary btn-sm">Login</a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+        <svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile nav -->
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="shop.html">Shop</a>
+  <a href="blog.html">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="log.html" class="btn btn-primary">Login</a>
+</nav>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="container">
+    <h1 class="reveal">AI &amp; robotics are building a <span class="grad-text">smarter tomorrow</span></h1>
+    <p class="reveal d1">NexBot designs intelligent machines, autonomous systems and machine-learning solutions that help industries move faster, safer and more efficiently.</p>
+    <div class="hero-cta reveal d2">
+      <a href="404.html" class="btn btn-primary">Explore Services</a>
+      <a href="404.html" class="btn btn-ghost">Learn More</a>
+    </div>
+    <div class="hero-stats reveal d3">
+      <div class="stat"><h3>250+</h3><p>Robots deployed</p></div>
+      <div class="stat"><h3>98%</h3><p>Client satisfaction</p></div>
+      <div class="stat"><h3>40+</h3><p>Countries served</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRUSTED BY ================= -->
+<div class="trusted">
+  <div class="container trusted-row">
+    <span class="trusted-label">Trusted by industry leaders</span>
+    <div class="trusted-logos">
+      <span><i></i>Elevate</span>
+      <span><i></i>Dreamt</span>
+      <span><i></i>Digitally</span>
+      <span><i></i>Promote</span>
+      <span><i></i>Influence</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <div class="container about-wrap">
+    <div class="about-media reveal">
+      <img src="img16.webp" alt="Engineers collaborating at a computer" loading="lazy">
+      <div class="badge-float">
+        <span class="num">12+</span>
+        <p>Years of experience engineering autonomous systems and intelligent machines.</p>
+      </div>
+    </div>
+    <div class="about-copy reveal d1">
+      <span class="eyebrow">About stackly</span>
+      <h2 class="section-title">Pioneering the future of <span class="grad-text">AI &amp; robotics</span></h2>
+      <p>Robotics and artificial intelligence have advanced dramatically, driven by breakthroughs in machine learning, computer vision, natural language processing and hardware capabilities.</p>
+      <p>We build algorithms, models and embodied systems that perceive, decide and act — enabling machines to work alongside people in factories, hospitals, warehouses and cities.</p>
+      <ul class="about-list">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>End-to-end robot design, from prototype to production</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Custom machine-learning models trained on your data</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>24/7 monitoring, support and continuous improvement</li>
+      </ul>
+      <a href="404.html" class="btn btn-primary">Work With Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHY CHOOSE ================= -->
+<section class="choose">
+  <div class="container choose-wrap">
+    <div class="reveal">
+      <span class="eyebrow">Why Choose Us</span>
+      <h2 class="section-title">Choosing robotics unlocks an <span class="grad-text">innovative field</span></h2>
+      <p class="section-lead">Partner with a team that blends deep research with real-world engineering to deliver systems that actually work on your floor.</p>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M12 22V12M3 7l9 5 9-5"/></svg>
+        </div>
+        <div>
+          <h3>Technological Advancement</h3>
+          <p>Rapidly advancing fields that offer exciting opportunities for innovation and discovery.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>
+        </div>
+        <div>
+          <h3>Entrepreneurial Opportunities</h3>
+          <p>The rapid growth of AI and robotics has created a multitude of new business opportunities.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div>
+          <h3>Safe &amp; Reliable by Design</h3>
+          <p>Every system is built with safety, compliance and long-term reliability as first-class goals.</p>
+        </div>
+      </div>
+    </div>
+    <div class="choose-media reveal d1">
+      <img src="12img.webp" alt="Engineers collaborating at a computer" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ================= SERVICES ================= -->
+<section id="services">
+  <div class="container">
+    <div class="services-head reveal">
+      <span class="eyebrow" style="justify-content:center">What We Do</span>
+      <h2 class="section-title">Explore our best-included <span class="grad-text">AI &amp; robotics services</span></h2>
+      <p class="section-lead">From data to deployment, our engineering teams cover the full lifecycle of intelligent automation.</p>
+    </div>
+
+    <div class="service-row reveal">
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>
+      </div>
+      <div>
+        <h3>Data Analytics &amp; Insights</h3>
+        <p>Leveraging AI algorithms to analyze large volumes of data, uncover patterns and gain valuable insights for informed decision-making.</p>
+      </div>
+      <a href="404.html" class="btn btn-ghost btn-sm">Explore More</a>
+    </div>
+
+    <div class="service-row reveal">
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M8 12h8M12 8v8"/></svg>
+      </div>
+      <div>
+        <h3>Autonomous Systems Development</h3>
+        <p>Designing and developing autonomous robots and vehicles capable of intelligent decision-making and navigation.</p>
+      </div>
+      <a href="404.html" class="btn btn-ghost btn-sm">Explore More</a>
+    </div>
+
+    <div class="service-row reveal">
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 7V3M8 13h.01M16 13h.01M9 17h6"/></svg>
+      </div>
+      <div>
+        <h3>AI Chatbots &amp; Virtual Assistants</h3>
+        <p>Creating intelligent chatbot systems that understand and respond to user queries, improving customer service and support.</p>
+      </div>
+      <a href="404.html" class="btn btn-ghost btn-sm">Explore More</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CASE STUDIES ================= -->
+<section class="case" id="case-studies">
+  <div class="container">
+    <div class="case-head reveal">
+      <h2 class="section-title">Explore our <span class="grad-text">case studies</span></h2>
+      <p class="section-lead" style="max-width:420px;margin-top:0">A few real-world deployments showcasing the practical applications and benefits of our technology.</p>
+    </div>
+    <div class="case-grid">
+<div class="case-card reveal d2"> 
+            <img src="17img.webp" alt="Aerial view of Singapore's Marina Bay and connected city infrastructure" loading="lazy">
+ 
+        <span class="case-label">Industrial Automation</span>
+      </div>
+ <div class="case-card reveal d2">
+          <img src="3img.webp" alt="Aerial view of Singapore's Marina Bay and connected city infrastructure" loading="lazy">
+     
+     <span class="case-label">Surgical Robotics</span>
+      </div>
+      <div class="case-card reveal d2">
+        <img src="12img.webp" alt="Aerial view of Singapore's Marina Bay and connected city infrastructure" loading="lazy">
+        <span class="case-label">Autonomous Vehicles</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section id="testimonials">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <span class="eyebrow" style="justify-content:center">Testimonials</span>
+      <h2 class="section-title">What people say about our <span class="grad-text">AI &amp; robotic technology</span></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+        </div>
+        <p>"NexBot's autonomous fleet cut our warehouse handling time by 40%. Their team understood our constraints from day one and delivered ahead of schedule."</p>
+        <div class="testi-author">
+          <span class="avatar">DW</span>
+          <div><h4>David Woodson</h4><p>CEO &amp; Founder, Elevate</p></div>
+        </div>
+        <span class="quote-mark">&ldquo;</span>
+      </div>
+      <div class="testi-card reveal d1">
+        <div class="stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg>
+        </div>
+        <p>"The computer-vision pipeline they built runs flawlessly on our production line. Precision improved dramatically and downtime is nearly zero now."</p>
+        <div class="testi-author">
+          <span class="avatar">SL</span>
+          <div><h4>Sara Lindqvist</h4><p>CTO, Dreamt Robotics</p></div>
+        </div>
+        <span class="quote-mark">&ldquo;</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BLOG ================= -->
+<section class="blog" id="blog">
+  <div class="container">
+    <div class="blog-head reveal">
+      <span class="eyebrow" style="justify-content:center">Insights</span>
+      <h2 class="section-title">Latest <span class="grad-text">blog &amp; articles</span></h2>
+    </div>
+    <div class="blog-grid">
+      <article class="blog-card reveal">
+        <span class="tag">News</span>
+        <p class="blog-meta">By: NexBot &nbsp;&bull;&nbsp; July 25, 2023</p>
+        <h3>AI and robotics revolutionizing patient care</h3>
+        <p>How surgical-assist robots and diagnostic AI are transforming hospitals and clinics worldwide.</p>
+        <a href="404.html" class="btn btn-ghost btn-sm">Explore More</a>
+      </article>
+      <article class="blog-card reveal d1">
+        <span class="tag">News</span>
+        <p class="blog-meta">By: NexBot &nbsp;&bull;&nbsp; July 25, 2023</p>
+        <h3>Unleashing the power of AI in business operations</h3>
+        <p>Practical strategies for embedding machine learning into everyday operational workflows.</p>
+        <a href="404.html" class="btn btn-ghost btn-sm">Explore More</a>
+      </article>
+      <article class="blog-card reveal d2">
+        <span class="tag">News</span>
+        <p class="blog-meta">By: NexBot &nbsp;&bull;&nbsp; July 25, 2023</p>
+        <h3>The rise of AI and robotics in retail experiences</h3>
+        <p>From shelf-scanning bots to personalized assistants — the new face of customer experience.</p>
+        <a href="404.html" class="btn btn-ghost btn-sm">Explore More</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq">
+  <div class="container faq-wrap">
+    <div class="reveal">
+      <span class="eyebrow">FAQ</span>
+      <h2 class="section-title">NexBot AI &amp; robotics <span class="grad-text">FAQs</span></h2>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button class="faq-q" aria-expanded="true">What are the main applications of AI and robotics?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>AI and robotics have applications in manufacturing, healthcare, agriculture, transportation, customer service, finance and entertainment. They automate tasks, enhance productivity, improve accuracy and drive innovation across industries.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">What is Artificial Intelligence (AI)?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>AI is the development of algorithms, models and systems that enable machines to mimic human intelligence and behavior — including learning from data, recognizing patterns, making decisions and improving over time.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">What is robotics?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>Robotics is the engineering discipline focused on designing, building and operating robots — machines that can sense their environment, process information and perform physical tasks autonomously or semi-autonomously.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">What is the difference between AI and robotics?<span class="faq-icon"></span></button>
+          <div class="faq-a"><p>AI is the "brain" — software that learns and makes decisions. Robotics is the "body" — the physical machine that acts. When combined, you get intelligent robots that can perceive, reason and interact with the real world.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="faq-media reveal d1">
+      <img src="img16.webp" alt="Engineers collaborating at a computer" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section id="contact" style="padding-top:0">
+  <div class="container">
+    <div class="cta-band reveal">
+      <h2>Ready to automate your <span class="grad-text">next big idea?</span></h2>
+      <p>Tell us about your project and our engineers will design an intelligent solution tailored to your goals.</p>
+      <a href="404.html" class="btn btn-primary">Get In Touch</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" aria-label="STACKLYN home">
+          <img src="logoo%20-%20Copy.webp" alt="">
+          <span class="logo-text">STACK<span>LY</span></span>
+        </a>
+        <p>STACKLYN builds intelligent robots, autonomous systems and AI solutions that help the world's industries move faster, safer and smarter.</p>
+        <div class="footer-social">
+          <a href="404.html" aria-label="X / Twitter"><svg viewBox="0 0 24 24"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.2l7.3-8.3L1 2h6.5l4.4 5.9L18.9 2Zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20Z"/></svg></a>
+          <a href="404.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.5c0-1.3 0-3-1.9-3s-2.2 1.4-2.2 2.9V21h-4V9Z"/></svg></a>
+          <a href="404.html" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 8.8 21.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.2-.4-1.2.1-2.6 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.6.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg></a>
+          <a href="404.html" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23 12s0-3.9-.5-5.6c-.3-1-1-1.7-2-2C18.8 4 12 4 12 4s-6.8 0-8.5.4c-1 .3-1.7 1-2 2C1 8.1 1 12 1 12s0 3.9.5 5.6c.3 1 1 1.7 2 2 1.7.4 8.5.4 8.5.4s6.8 0 8.5-.4c1-.3 1.7-1 2-2 .5-1.7.5-5.6.5-5.6ZM9.8 15.5v-7l6 3.5-6 3.5Z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="shop.html">Shop</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="404.html">Robotics Solutions</a></li>
+          <li><a href="404.html">Automation Solutions</a></li>
+          <li><a href="404.html">AI &amp; Robotics</a></li>
+          <li><a href="404.html">Industrial Robotics</a></li>
+          <li><a href="404.html">Smart Technology</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul class="footer-contact">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>123, Chinna Tirupathi, Salem, Tamil Nadu</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.5 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>+91 XXXXX XXXXX</li>
+       
+<li class="email-contact">
+  <svg viewBox="0 0 24 24"
+       fill="none"
+       stroke="currentColor"
+       stroke-width="1.8"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       width="20"
+       height="20"
+       aria-hidden="true">
+    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+    <path d="m22 7-10 6L2 7"></path>
+  </svg>
+
+  <a href="mailto:hello@stackly.ai">
+    hello@stackly.ai
+  </a>
+</li>
+
+    <div class="footer-bottom">
+      <span>&copy; 2026 STACKLYN. All rights reserved.</span>
+      <span><a href="404.html">Privacy Policy</a> &nbsp;&bull;&nbsp; <a href="404.html">Terms of Service</a></span>
+    </div>
+  </div>
+<!-- Back to top -->
+<button class="to-top" id="toTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+/* ========== Mobile menu ========== */
+const menuToggle = document.getElementById('menuToggle');
+const mobileNav  = document.getElementById('mobileNav');
+menuToggle.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  menuToggle.classList.toggle('open', open);
+  menuToggle.setAttribute('aria-expanded', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+/* Close menu when a link is tapped */
+mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  mobileNav.classList.remove('open');
+  menuToggle.classList.remove('open');
+  menuToggle.setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
+}));
+
+/* ========== FAQ accordion ========== */
+document.querySelectorAll('.faq-item').forEach(item => {
+  const q = item.querySelector('.faq-q');
+  const a = item.querySelector('.faq-a');
+  /* initialise open item */
+  if (item.classList.contains('open')) a.style.maxHeight = a.scrollHeight + 'px';
+  q.addEventListener('click', () => {
+    const isOpen = item.classList.contains('open');
+    /* close all */
+    document.querySelectorAll('.faq-item').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.faq-a').style.maxHeight = null;
+      i.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      a.style.maxHeight = a.scrollHeight + 'px';
+      q.setAttribute('aria-expanded', 'true');
+    }
+  });
+});
+/* Recalculate open answer on resize */
+window.addEventListener('resize', () => {
+  const open = document.querySelector('.faq-item.open .faq-a');
+  if (open) open.style.maxHeight = open.scrollHeight + 'px';
+});
+
+/* ========== Scroll reveal ========== */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ========== Back to top ========== */
+const toTop = document.getElementById('toTop');
+window.addEventListener('scroll', () => {
+  toTop.classList.toggle('show', window.scrollY > 500);
+}, { passive: true });
+toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+</body>
+</html>
