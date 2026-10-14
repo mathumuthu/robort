@@ -19,7 +19,7 @@
       <a href="about.html">About</a>
       <a href="shop.html">Shop</a>
       <a href="blog.html">Blog</a>
-      <a href="contact.html" class="active">Contact Us</a>
+      <a href="contact.html" class="active">Contact</a>
     </nav>
     <div class="header-actions">
       <a href="log.html" class="btn btn-primary btn-sm">Login</a>
@@ -56,7 +56,7 @@
       </div>
       <div class="info-line">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.5 2.8.7a2 2 0 0 1 1.7 2Z"/></svg></div>
-        <div><h4>Phone</h4><p>+91 XXXXX XXXXX</p></div>
+        <div><h4>Phone</h4><p>+91 9876543211</p></div>
       </div>
       <div class="info-line">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></div>
@@ -72,8 +72,15 @@
       <div class="form-row">
         <div class="form-group">
           <label for="cname">Full name</label>
-          <input type="text" id="cname" placeholder="Jane Cooper" required>
-        </div>
+<input
+  type="text"
+  id="name"
+  name="name"
+  placeholder="Enter your name"
+  pattern="[A-Za-z ]+"
+  oninput="this.value = this.value.replace(/[^A-Za-z ]/g, '')"
+  required
+/>        </div>
         <div class="form-group">
           <label for="cemail">Email address</label>
           <input type="email" id="cemail" placeholder="jane@company.com" required>
@@ -82,8 +89,17 @@
       <div class="form-row">
         <div class="form-group">
           <label for="cphone">Phone (optional)</label>
-          <input type="tel" id="cphone" placeholder="+91 XXXXX XXXXX">
-        </div>
+<input
+  type="tel"
+  id="phone"
+  name="phone"
+  placeholder="Enter 10-digit phone number"
+  inputmode="numeric"
+  maxlength="10"
+  pattern="[0-9]{10}"
+  oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+  required
+/>        </div>
         <div class="form-group">
           <label for="csubject">Subject</label>
           <select id="csubject">
@@ -165,7 +181,7 @@ document.getElementById('contactForm').addEventListener('submit', e => {
         <h4>Contact</h4>
         <ul class="footer-contact">
           <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>123, Chinna Tirupathi, Salem, Tamil Nadu</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.5 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>+91 XXXXX XXXXX</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.5 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>+91 9876543211</li>
        
 <li class="email-contact">
   <svg viewBox="0 0 24 24"
@@ -187,7 +203,7 @@ document.getElementById('contactForm').addEventListener('submit', e => {
 </li>
 
     <div class="footer-bottom">
-      <span>&copy; 2026 STACKLYN. All rights reserved.</span>
+      <span>&copy; 2026 STACKLY. All rights reserved.</span>
       <span><a href="404.html">Privacy Policy</a> &nbsp;&bull;&nbsp; <a href="404.html">Terms of Service</a></span>
     </div>
   </div>
